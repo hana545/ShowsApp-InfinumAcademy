@@ -1,9 +1,15 @@
 package infinuma.android.shows.ui
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.Log
-import infinuma.android.shows.R
+import androidx.appcompat.app.AppCompatActivity
+import infinuma.android.shows.databinding.ActivityLoginBinding
+
 /*
 1. Put the app in background and move it back to foreground
 
@@ -35,10 +41,69 @@ import infinuma.android.shows.R
 
 
 class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+    private val KEY_USERNAME = "USERNAME"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         Log.d("ActivityLifecycle", "onCreate")
+
+        val inputEmail = binding.loginInputEmail
+        val inputPassword = binding.loginInputPassword
+        val btnLogin = binding.loginBtn
+
+        inputEmail.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                if(!s.toString().isEmailValid()){
+                    inputEmail.error = "Enter valid email"
+                    btnLogin.isEnabled = false
+                } else {
+                    if (inputPassword.text?.length!! >= 6) btnLogin.isEnabled = true
+                }
+            }
+        })
+        inputPassword.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                if(s.length < 6){
+                    inputPassword.error = "Your password should contain at least 6 characters"
+                    btnLogin.isEnabled = false
+                } else {
+                    if (inputEmail.text.toString().isEmailValid()) btnLogin.isEnabled = true
+                }
+            }
+        })
+
+        btnLogin.setOnClickListener {
+            //Explicit Intent
+            /*
+            val intent = Intent(this, WelcomeActivity::class.java)
+            intent.putExtra(KEY_USERNAME,inputEmail.text.toString())
+            startActivity(intent)*/
+
+
+            //Implicit Intent
+            val sendIntent = Intent().apply {
+                action = ("infinuma.android.shows.ui.WelcomeActivity" )
+                putExtra(KEY_USERNAME, inputEmail.text.toString())
+            }
+
+            try {
+                startActivity(sendIntent)
+            } catch (e: ActivityNotFoundException) {
+                Log.d("ImplicitIntentError", e.toString())
+            }
+
+        }
+    }
+    fun String.isEmailValid(): Boolean {
+        return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
     override fun onStart() {

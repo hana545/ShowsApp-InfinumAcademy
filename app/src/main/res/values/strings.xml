@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Shows</string>
+    <string name="login_title">Login</string>
+    <string name="login_description">In order to continue please log in.</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 </resources>
