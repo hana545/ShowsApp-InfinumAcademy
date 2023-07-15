@@ -15,7 +15,6 @@ import infinuma.android.shows.databinding.ActivityLoginBinding
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private val KEY_USERNAME = "USERNAME"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -52,22 +51,8 @@ class LoginActivity : AppCompatActivity() {
         binding.loginBtn.setOnClickListener {
             //Explicit Intent
             /*
-            val intent = Intent(this, WelcomeActivity::class.java)
-            intent.putExtra(KEY_USERNAME,inputEmail.text.toString())
+            val intent = Intent(this, _::class.java)
             startActivity(intent)*/
-
-
-            //Implicit Intent
-            val sendIntent = Intent().apply {
-                action = ("infinuma.android.shows.ui.WelcomeActivity" )
-                putExtra(KEY_USERNAME, binding.loginInputEmail.text.toString())
-            }
-
-            try {
-                startActivity(sendIntent)
-            } catch (e: ActivityNotFoundException) {
-                Log.d("ImplicitIntentError", e.toString())
-            }
 
         }
     }
@@ -76,31 +61,25 @@ class LoginActivity : AppCompatActivity() {
     }
 
     override fun onStart() {
-        Log.d("ActivityLifecycle", "onStart")
         super.onStart()
     }
 
     override fun onPause() {
-        Log.d("ActivityLifecycle", "onPause")
         super.onPause()
     }
 
     override fun onResume() {
-        Log.d("ActivityLifecycle", "onResume")
         super.onResume()
     }
 
     override fun onStop() {
-        Log.d("ActivityLifecycle", "onStop")
         super.onStop()
     }
     override fun onDestroy() {
-        Log.d("ActivityLifecycle", "onDestroy")
         super.onDestroy()
     }
 
     override fun onRestart() {
-        Log.d("ActivityLifecycle", "onRestart")
         super.onRestart()
     }
 }
