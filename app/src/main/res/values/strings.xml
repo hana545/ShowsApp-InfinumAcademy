@@ -4,4 +4,5 @@
     <string name="login_description">In order to continue please log in.</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="empty_show_list">Your shows are not showing. Get it?</string>
 </resources>

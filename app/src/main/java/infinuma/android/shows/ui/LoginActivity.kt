@@ -20,7 +20,6 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        Log.d("ActivityLifecycle", "onCreate")
 
 
         binding.loginInputEmail.addTextChangedListener(object : TextWatcher {
@@ -49,10 +48,8 @@ class LoginActivity : AppCompatActivity() {
         })
 
         binding.loginBtn.setOnClickListener {
-            //Explicit Intent
-            /*
-            val intent = Intent(this, _::class.java)
-            startActivity(intent)*/
+            val intent = Intent(this, ShowsActivity::class.java)
+            startActivity(intent)
 
         }
     }
