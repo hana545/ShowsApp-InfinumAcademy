@@ -131,15 +131,16 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/loginBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textAllCaps="false"
         android:enabled="false"
         android:text="@string/login_title"
+        android:backgroundTint="@color/white_button"
         app:layout_constraintTop_toBottomOf="@id/loginInputPasswordLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

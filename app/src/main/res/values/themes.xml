@@ -16,9 +16,10 @@
 
     <style name="Widget.MaterialComponents.TextInputLayout.WhiteOutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="android:textColorHint">@color/white</item>
-        <item name="boxStrokeColor">@color/white</item>
+        <item name="boxStrokeColor">@color/white_outlined_button</item>
         <item name="hintTextColor">@color/white</item>
         <item name="boxStrokeWidth">2dp</item>
+
     </style>
 
 </resources>
