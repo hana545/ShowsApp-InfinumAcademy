@@ -8,12 +8,16 @@ import infinuma.android.shows.databinding.ViewShowItemBinding
 import infinuma.android.shows.model.Show
 
 class ShowsAdapter (
-    private var items: List<Show>
+    private var items: List<Show>,
+    private var onItemClick : (Show) -> Unit
 ) : RecyclerView.Adapter<ShowsAdapter.ShowViewHolder>() {
 
     inner class ShowViewHolder(private val binding: ViewShowItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(show: Show) {
+            binding.cardContainer.setOnClickListener{
+                onItemClick.invoke(show)
+            }
             binding.showName.text = show.name
             binding.showGenre.text = show.genre
             binding.showDescription.text = show.description

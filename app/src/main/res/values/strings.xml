@@ -5,4 +5,8 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="empty_show_list">Your shows are not showing. Get it?</string>
+    <string name="btn_write_review">Write a Review</string>
+    <string name="list_reviews_empty">No reviews yet</string>
+    <string name="reviews_title">Reviews</string>
+    <string name="reviews_info">%d REVIEWS, %.2f AVERAGE</string>
 </resources>
