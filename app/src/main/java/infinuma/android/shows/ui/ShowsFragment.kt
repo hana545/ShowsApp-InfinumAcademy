@@ -10,8 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
 import infinuma.android.shows.adapters.ShowsAdapter
-import infinuma.android.shows.databinding.ActivityShowsBinding
-import infinuma.android.shows.databinding.FragmentLoginBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.model.Show
 
