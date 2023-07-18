@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
 import infinuma.android.shows.adapters.ShowsAdapter
 import infinuma.android.shows.databinding.ActivityShowsBinding
@@ -21,6 +22,12 @@ class ShowsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: ShowsAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.slide_right)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

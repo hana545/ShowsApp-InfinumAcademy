@@ -12,6 +12,7 @@ import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
 import infinuma.android.shows.adapters.ReviewsAdapter
 import infinuma.android.shows.adapters.ShowsAdapter
@@ -102,7 +103,7 @@ class ShowDetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                activity?.onBackPressedDispatcher?.onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
                 return true
             }
         }

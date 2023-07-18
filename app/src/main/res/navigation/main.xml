@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main.xml" app:startDestination="@id/loginFragment">
+    android:id="@+id/main.xml"
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -10,40 +11,11 @@
         tools:layout="@layout/fragment_login">
 
         <action
-            android:id="@+id/action_loginFragment_to_showsFragment"
-            app:destination="@id/showsFragment"/>
+            android:id="@+id/toShowNavGraph"
+            app:destination="@+id/showNavGraph"/>
     </fragment>
 
-    <fragment
-        android:id="@+id/showsFragment"
-        android:name="infinuma.android.shows.ui.ShowsFragment"
-        android:label="ShowsFragment"
-        tools:layout="@layout/fragment_shows">
-
-        <action
-            android:id="@+id/action_showsFragment_to_showDetailsFragment"
-            app:destination="@id/showDetailsFragment"/>
-
-        <action
-            android:id="@+id/action_showsFragment_to_loginFragment"
-            app:popUpToInclusive="true"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/loginFragment"
-            app:destination="@id/loginFragment"/>
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/showDetailsFragment"
-        android:name="infinuma.android.shows.ui.ShowDetailsFragment"
-        android:label="ShowDetailsFragment"
-        tools:layout="@layout/fragment_show_details">
-
-        <argument
-            android:name="show"
-            app:argType="infinuma.android.shows.model.Show"/>
-
-    </fragment>
+    <include app:graph="@navigation/show_nav_graph"/>
 
 
 </navigation>

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentLoginBinding
 
@@ -18,6 +19,12 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
 
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.fade)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,7 +64,7 @@ class LoginFragment : Fragment() {
         })
 
         binding.loginBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_showsFragment)
+            findNavController().navigate(R.id.toShowNavGraph)
 
         }
     }
