@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main.xml" app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="infinuma.android.shows.ui.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_loginFragment_to_showsFragment"
+            app:destination="@id/showsFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/showsFragment"
+        android:name="infinuma.android.shows.ui.ShowsFragment"
+        android:label="ShowsFragment"
+        tools:layout="@layout/fragment_shows">
+
+        <action
+            android:id="@+id/action_showsFragment_to_showDetailsFragment"
+            app:destination="@id/showDetailsFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/showDetailsFragment"
+        android:name="infinuma.android.shows.ui.ShowDetailsFragment"
+        android:label="ShowDetailsFragment"
+        tools:layout="@layout/fragment_show_details">
+
+        <argument
+            android:name="show"
+            app:argType="infinuma.android.shows.model.Show"/>
+    </fragment>
+
+
+</navigation>
