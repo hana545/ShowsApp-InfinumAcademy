@@ -20,6 +20,16 @@
         android:layout_marginTop="65dp"
         android:textColor="@color/black"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="10dp"
+        android:text="@string/log_out"
+        android:textAllCaps="false"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewShows"
         android:layout_width="match_parent"

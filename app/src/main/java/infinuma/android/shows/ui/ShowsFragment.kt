@@ -55,6 +55,10 @@ class ShowsFragment : Fragment() {
                 binding.recyclerViewShows.visibility = View.VISIBLE
             }
         }
+
+        binding.btnLogOut.setOnClickListener {
+            findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
+        }
     }
 
     fun setShowList() : MutableList<Show>{

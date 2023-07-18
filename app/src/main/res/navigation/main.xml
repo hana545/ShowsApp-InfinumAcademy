@@ -24,6 +24,13 @@
             android:id="@+id/action_showsFragment_to_showDetailsFragment"
             app:destination="@id/showDetailsFragment"/>
 
+        <action
+            android:id="@+id/action_showsFragment_to_loginFragment"
+            app:popUpToInclusive="true"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/loginFragment"
+            app:destination="@id/loginFragment"/>
+
     </fragment>
 
     <fragment
@@ -35,6 +42,7 @@
         <argument
             android:name="show"
             app:argType="infinuma.android.shows.model.Show"/>
+
     </fragment>
 
 
