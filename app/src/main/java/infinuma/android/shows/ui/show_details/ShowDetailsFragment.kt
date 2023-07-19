@@ -1,4 +1,4 @@
-package infinuma.android.shows.ui
+package infinuma.android.shows.ui.show_details
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,22 +7,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.transition.TransitionInflater
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
-import infinuma.android.shows.adapters.ReviewsAdapter
-import infinuma.android.shows.adapters.ShowsAdapter
 import infinuma.android.shows.databinding.DialogAddReviewBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
-import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.Show
+import infinuma.android.shows.ui.MainActivity
 
 class ShowDetailsFragment : Fragment() {
 
@@ -31,6 +23,8 @@ class ShowDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: ReviewsAdapter
+
+    private lateinit var show: Show
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,37 +42,26 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val show = arguments?.getSerializable("show") as Show
-        binding.toolbar.title = show.name
-        binding.showGenre.text = show.genre
-        binding.showDescription.text = show.description
-        binding.showImage.setImageResource(show.imageResourceId)
+        show = arguments?.getSerializable("show") as Show
 
-        (activity as MainActivity).apply {
-            setSupportActionBar(binding.toolbar)
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setDisplayShowHomeEnabled(true)
-        }
+        bindShowData()
+
+        setupSupportActionBar()
+        setupReviewsAdapter()
+        setupAddReviewDialog()
 
 
         if(show.reviews.size == 0) {
-            binding.reviewsEmpty.visibility = View.VISIBLE
-            binding.recyclerViewReviews.visibility = View.GONE
-            binding.reviewInfo.visibility = View.GONE
-            binding.reviewInfoRatingBar.visibility = View.GONE
+            hideReviews()
         } else {
-            binding.reviewsEmpty.visibility = View.GONE
-            binding.recyclerViewReviews.visibility = View.VISIBLE
-            binding.reviewInfo.visibility = View.VISIBLE
-            binding.reviewInfoRatingBar.visibility = View.VISIBLE
+            showReviews()
         }
 
-        adapter = ReviewsAdapter(show.reviews)
 
-        binding.recyclerViewReviews.adapter = adapter
-        binding.recyclerViewReviews.addItemDecoration(
-            DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        )
+    }
+
+    private fun setupAddReviewDialog() {
+
         val dialog = BottomSheetDialog(requireContext())
         val dialogBinding = DialogAddReviewBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
@@ -94,20 +77,10 @@ class ShowDetailsFragment : Fragment() {
                         dialogBinding.apply {
                             btnAddReview.isEnabled = true
                             btnAddReview.setOnClickListener {
-                                show.reviews.add(
-                                    Review(
-                                        "dummy_user",
-                                        rating.toInt(),
-                                        dialogBinding.reviewText.text.toString(),
-                                        R.drawable.ic_profile_placeholder
-                                    )
-                                )
+                                addReview(rating.toInt(), dialogBinding.reviewText.text.toString())
                                 averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
+                                showReviews()
                                 binding.apply {
-                                    reviewsEmpty.visibility = View.GONE
-                                    reviewInfo.visibility = View.VISIBLE
-                                    reviewInfoRatingBar.visibility = View.VISIBLE
-                                    recyclerViewReviews.visibility = View.VISIBLE
                                     reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
                                     reviewInfoRatingBar.rating = averageReview
                                 }
@@ -120,7 +93,62 @@ class ShowDetailsFragment : Fragment() {
                 }
             }
         }
+    }
 
+    private fun addReview(rating : Int, text: String) {
+        show.reviews.add(
+            Review(
+                "dummy_user",
+                rating,
+                text,
+                R.drawable.ic_profile_placeholder
+            )
+        )
+    }
+
+    private fun setupReviewsAdapter() {
+        adapter = ReviewsAdapter(show.reviews)
+        binding.apply {
+            recyclerViewReviews.adapter = adapter
+            recyclerViewReviews.addItemDecoration(
+                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+            )
+        }
+    }
+
+    private fun showReviews() {
+        binding.apply {
+            reviewsEmpty.visibility = View.GONE
+            recyclerViewReviews.visibility = View.VISIBLE
+            reviewInfo.visibility = View.VISIBLE
+            reviewInfoRatingBar.visibility = View.VISIBLE
+        }
+    }
+
+    private fun hideReviews() {
+        binding.apply {
+            reviewsEmpty.visibility = View.VISIBLE
+            recyclerViewReviews.visibility = View.GONE
+            reviewInfo.visibility = View.GONE
+            reviewInfoRatingBar.visibility = View.GONE
+        }
+    }
+
+    private fun bindShowData() {
+        binding.apply {
+            toolbar.title = show.name
+            showGenre.text = show.genre
+            showDescription.text = show.description
+            showImage.setImageResource(show.imageResourceId)
+        }
+    }
+
+    private fun setupSupportActionBar() {
+        (activity as MainActivity).apply {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

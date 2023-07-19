@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/showsFragment"
-        android:name="infinuma.android.shows.ui.ShowsFragment"
+        android:name="infinuma.android.shows.ui.shows.ShowsFragment"
         android:label="ShowsFragment"
         tools:layout="@layout/fragment_shows">
 
@@ -26,7 +26,7 @@
 
     <fragment
         android:id="@+id/showDetailsFragment"
-        android:name="infinuma.android.shows.ui.ShowDetailsFragment"
+        android:name="infinuma.android.shows.ui.show_details.ShowDetailsFragment"
         android:label="ShowDetailsFragment"
         tools:layout="@layout/fragment_show_details">
 

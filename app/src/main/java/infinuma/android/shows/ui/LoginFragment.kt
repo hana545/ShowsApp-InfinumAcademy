@@ -37,7 +37,16 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupEmailListener()
+        setupPasswordListener()
 
+        binding.loginBtn.setOnClickListener {
+            findNavController().navigate(R.id.toShowNavGraph)
+
+        }
+    }
+
+    fun setupEmailListener(){
         binding.loginInputEmail.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -50,6 +59,9 @@ class LoginFragment : Fragment() {
                 }
             }
         })
+    }
+
+    fun setupPasswordListener(){
         binding.loginInputPassword.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -63,14 +75,10 @@ class LoginFragment : Fragment() {
             }
         })
 
-        binding.loginBtn.setOnClickListener {
-            findNavController().navigate(R.id.toShowNavGraph)
-
-        }
     }
 
     fun String.isEmailValid(): Boolean {
-        return !this.isEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+        return this.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
 

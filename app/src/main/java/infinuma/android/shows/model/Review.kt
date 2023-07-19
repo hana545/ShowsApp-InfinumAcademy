@@ -7,5 +7,4 @@ data class Review(
     val review: Int,
     val description: String,
     @DrawableRes val imageResourceId: Int,
-
-    )
+)

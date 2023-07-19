@@ -1,6 +1,5 @@
-package infinuma.android.shows.adapters
+package infinuma.android.shows.ui.shows
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +15,7 @@ class ShowsAdapter (
 
         fun bind(show: Show) {
             binding.cardContainer.setOnClickListener{
-                onItemClick.invoke(show)
+                onItemClick(show)
             }
             binding.showName.text = show.name
             binding.showGenre.text = show.genre

@@ -1,6 +1,5 @@
-package infinuma.android.shows.ui
+package infinuma.android.shows.ui.shows
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,7 +8,6 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
-import infinuma.android.shows.adapters.ShowsAdapter
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.model.Show
 
@@ -20,6 +18,8 @@ class ShowsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: ShowsAdapter
+
+    private lateinit var listShows : MutableList<Show>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,31 +38,45 @@ class ShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val listShows = setShowList()
+        listShows = setShowList()
 
         adapter = ShowsAdapter(listShows) { show ->
             val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show)
             findNavController().navigate(direction)
         }
 
-        binding.recyclerViewShows.adapter = adapter
+        binding.apply {
+            recyclerViewShows.adapter = adapter
 
-        binding.showsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if(isChecked){
-                listShows.removeAll(listShows)
-                adapter.notifyDataSetChanged()
-                binding.showsEmpty.visibility = View.VISIBLE
-                binding.recyclerViewShows.visibility = View.GONE
-            } else {
-                listShows.addAll(setShowList())
-                adapter.notifyDataSetChanged()
-                binding.showsEmpty.visibility = View.GONE
-                binding.recyclerViewShows.visibility = View.VISIBLE
+            showsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    removeShowsList()
+                } else {
+                    addShowsList()
+                }
+            }
+
+            btnLogOut.setOnClickListener {
+                findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
             }
         }
+    }
 
-        binding.btnLogOut.setOnClickListener {
-            findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
+    fun removeShowsList(){
+        listShows.removeAll(listShows)
+        adapter.notifyDataSetChanged()
+        binding.apply {
+            showsEmpty.visibility = View.VISIBLE
+            recyclerViewShows.visibility = View.GONE
+        }
+    }
+
+    fun addShowsList(){
+        listShows.addAll(setShowList())
+        adapter.notifyDataSetChanged()
+        binding.apply {
+            showsEmpty.visibility = View.GONE
+            recyclerViewShows.visibility = View.VISIBLE
         }
     }
 
