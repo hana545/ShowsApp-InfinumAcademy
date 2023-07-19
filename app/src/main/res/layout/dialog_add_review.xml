@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="20dp">
+
+    <RatingBar
+        android:id="@+id/reviewRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stepSize="1.0"
+        android:secondaryProgressTint="@color/purple_500"
+        android:progressTint="@color/purple_500"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:layout_marginHorizontal="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/reviewText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tell us what you think"
+            style="@style/ThemeOverlay.Material3.TextInputEditText.FilledBox"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddReview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add a review"/>
+</LinearLayout>

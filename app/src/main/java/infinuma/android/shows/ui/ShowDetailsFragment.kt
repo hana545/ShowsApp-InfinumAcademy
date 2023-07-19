@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
@@ -13,9 +14,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.transition.TransitionInflater
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
 import infinuma.android.shows.adapters.ReviewsAdapter
 import infinuma.android.shows.adapters.ShowsAdapter
+import infinuma.android.shows.databinding.DialogAddReviewBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.model.Review
@@ -76,26 +79,46 @@ class ShowDetailsFragment : Fragment() {
         binding.recyclerViewReviews.addItemDecoration(
             DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
         )
+        val dialog = BottomSheetDialog(requireContext())
+        val dialogBinding = DialogAddReviewBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
 
         var averageReview : Float = 0.0F
         binding.btnAddReview.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Add a Review")
-                .setMessage("Are you sure you want to add a new review?")
-                .setPositiveButton("Add") { dialog, which ->
-                    show.reviews.add(Review("dummy_user", (0..5).random(), "This is a review of ${show.name}",R.drawable.ic_profile_placeholder))
-                    averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
-                    binding.reviewsEmpty.visibility = View.GONE
-                    binding.reviewInfo.visibility = View.VISIBLE
-                    binding.reviewInfoRatingBar.visibility = View.VISIBLE
-                    binding.recyclerViewReviews.visibility = View.VISIBLE
-                    binding.reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
-                    binding.reviewInfoRatingBar.rating = averageReview
-                    adapter.notifyItemInserted(show.reviews.lastIndex)
+            dialog.show()
+            dialogBinding.apply {
+                reviewRating.rating = 0F
+                reviewText.text?.clear()
+                reviewRating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+                    if (rating > 0) {
+                        dialogBinding.apply {
+                            btnAddReview.isEnabled = true
+                            btnAddReview.setOnClickListener {
+                                show.reviews.add(
+                                    Review(
+                                        "dummy_user",
+                                        rating.toInt(),
+                                        dialogBinding.reviewText.text.toString(),
+                                        R.drawable.ic_profile_placeholder
+                                    )
+                                )
+                                averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
+                                binding.apply {
+                                    reviewsEmpty.visibility = View.GONE
+                                    reviewInfo.visibility = View.VISIBLE
+                                    reviewInfoRatingBar.visibility = View.VISIBLE
+                                    recyclerViewReviews.visibility = View.VISIBLE
+                                    reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
+                                    reviewInfoRatingBar.rating = averageReview
+                                }
+                                adapter.notifyItemInserted(show.reviews.lastIndex)
+                                Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+                                dialog.cancel()
+                            }
+                        }
+                    }
                 }
-                .setNegativeButton("Cancel", null)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
+            }
         }
 
     }
