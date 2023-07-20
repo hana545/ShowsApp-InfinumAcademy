@@ -1,10 +1,9 @@
-package infinuma.android.shows.adapters
+package infinuma.android.shows.ui.shows
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import infinuma.android.shows.databinding.ViewShowItemBinding
+import infinuma.android.shows.databinding.ItemShowBinding
 import infinuma.android.shows.model.Show
 
 class ShowsAdapter (
@@ -12,11 +11,11 @@ class ShowsAdapter (
     private var onItemClick : (Show) -> Unit
 ) : RecyclerView.Adapter<ShowsAdapter.ShowViewHolder>() {
 
-    inner class ShowViewHolder(private val binding: ViewShowItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ShowViewHolder(private val binding: ItemShowBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(show: Show) {
             binding.cardContainer.setOnClickListener{
-                onItemClick.invoke(show)
+                onItemClick(show)
             }
             binding.showName.text = show.name
             binding.showGenre.text = show.genre
@@ -26,7 +25,7 @@ class ShowsAdapter (
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewHolder {
-        val binding = ViewShowItemBinding.inflate(LayoutInflater.from(parent.context))
+        val binding = ItemShowBinding.inflate(LayoutInflater.from(parent.context))
         return ShowViewHolder(binding)
     }
 

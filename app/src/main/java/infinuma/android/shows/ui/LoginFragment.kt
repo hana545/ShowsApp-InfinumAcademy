@@ -1,27 +1,52 @@
 package infinuma.android.shows.ui
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import infinuma.android.shows.databinding.ActivityLoginBinding
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import androidx.transition.TransitionInflater
+import infinuma.android.shows.R
+import infinuma.android.shows.databinding.FragmentLoginBinding
 
 
+class LoginFragment : Fragment() {
 
-class LoginActivity : AppCompatActivity() {
+    private var _binding: FragmentLoginBinding? = null
 
-    private lateinit var binding: ActivityLoginBinding
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.fade)
+    }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupEmailListener()
+        setupPasswordListener()
+
+        binding.loginBtn.setOnClickListener {
+            findNavController().navigate(R.id.toShowNavGraph)
+
+        }
+    }
+
+    fun setupEmailListener(){
         binding.loginInputEmail.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -34,6 +59,9 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    fun setupPasswordListener(){
         binding.loginInputPassword.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -47,36 +75,15 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        binding.loginBtn.setOnClickListener {
-            val intent = Intent(this, ShowsActivity::class.java)
-            startActivity(intent)
-
-        }
     }
+
     fun String.isEmailValid(): Boolean {
-        return !this.isEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+        return this.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
 
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-    }
     override fun onDestroy() {
         super.onDestroy()
-    }
-
-    override fun onRestart() {
-        super.onRestart()
+        _binding = null
     }
 }

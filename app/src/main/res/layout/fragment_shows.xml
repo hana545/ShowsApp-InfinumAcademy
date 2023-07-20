@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ShowsActivity"
     android:background="@color/white">
 
     <TextView
@@ -19,6 +18,19 @@
         android:layout_marginHorizontal="25dp"
         android:layout_marginTop="65dp"
         android:textColor="@color/black"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="@string/log_out"
+        android:textColor="@color/white"
+        android:textAllCaps="false"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewShows"
@@ -64,9 +76,5 @@
         android:padding="20dp"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"/>
-
-
-
-
 
 </RelativeLayout>

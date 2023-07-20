@@ -1,16 +1,16 @@
-package infinuma.android.shows.adapters
+package infinuma.android.shows.ui.show_details
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import infinuma.android.shows.databinding.ViewReviewItemBinding
+import infinuma.android.shows.databinding.ItemReviewBinding
 import infinuma.android.shows.model.Review
 
 class ReviewsAdapter (
     private var items: MutableList<Review>
 ) : RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder>() {
 
-    inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ReviewViewHolder(private val binding: ItemReviewBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(review: Review) {
             binding.reviewAuthor.text = review.author
@@ -20,7 +20,7 @@ class ReviewsAdapter (
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
-        val binding = ViewReviewItemBinding.inflate(LayoutInflater.from(parent.context))
+        val binding = ItemReviewBinding.inflate(LayoutInflater.from(parent.context))
         return ReviewViewHolder(binding)
     }
 
