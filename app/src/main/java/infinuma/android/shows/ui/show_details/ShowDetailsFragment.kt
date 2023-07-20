@@ -50,14 +50,11 @@ class ShowDetailsFragment : Fragment() {
         setupReviewsAdapter()
         setupAddReviewDialog()
 
-
         if(show.reviews.size == 0) {
             hideReviews()
         } else {
             showReviews()
         }
-
-
     }
 
     private fun setupAddReviewDialog() {
@@ -66,7 +63,8 @@ class ShowDetailsFragment : Fragment() {
         val dialogBinding = DialogAddReviewBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        var averageReview : Float = 0.0F
+        var averageReview = 0.0F
+        var ratingValue = 0
         binding.btnAddReview.setOnClickListener {
             dialog.show()
             dialogBinding.apply {
@@ -74,24 +72,23 @@ class ShowDetailsFragment : Fragment() {
                 reviewText.text?.clear()
                 reviewRating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
                     if (rating > 0) {
-                        dialogBinding.apply {
-                            btnAddReview.isEnabled = true
-                            btnAddReview.setOnClickListener {
-                                addReview(rating.toInt(), dialogBinding.reviewText.text.toString())
-                                averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
-                                showReviews()
-                                binding.apply {
-                                    reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
-                                    reviewInfoRatingBar.rating = averageReview
-                                }
-                                adapter.notifyItemInserted(show.reviews.lastIndex)
-                                Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
-                                dialog.cancel()
-                            }
-                        }
+                        dialogBinding.btnSubmitReview.isEnabled = true
+                        ratingValue = rating.toInt()
                     }
                 }
             }
+        }
+        dialogBinding.btnSubmitReview.setOnClickListener {
+            addReview(ratingValue, dialogBinding.reviewText.text.toString())
+            averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
+            showReviews()
+            binding.apply {
+                reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
+                reviewInfoRatingBar.rating = averageReview
+            }
+            adapter.notifyItemInserted(show.reviews.lastIndex)
+            Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+            dialog.cancel()
         }
     }
 

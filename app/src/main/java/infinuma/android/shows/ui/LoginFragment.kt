@@ -52,9 +52,10 @@ class LoginFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!s.toString().isEmailValid()){
-                    binding.loginInputEmail.error = "Enter valid email"
+                    binding.loginInputEmailLayout.error = "Enter valid email"
                     binding.loginBtn.isEnabled = false
                 } else {
+                    binding.loginInputEmailLayout.error = null
                     if (binding.loginInputPassword.text?.length!! >= 6) binding.loginBtn.isEnabled = true
                 }
             }
@@ -67,9 +68,10 @@ class LoginFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(s.length < 6){
-                    binding.loginInputPassword.error = "Your password should contain at least 6 characters"
+                    binding.loginInputPasswordLayout.error = "Your password should contain at least 6 characters"
                     binding.loginBtn.isEnabled = false
                 } else {
+                    binding.loginInputPasswordLayout.error = null
                     if (binding.loginInputEmail.text.toString().isEmailValid()) binding.loginBtn.isEnabled = true
                 }
             }

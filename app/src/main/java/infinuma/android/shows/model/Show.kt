@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import java.io.Serializable
 
 data class Show(
-    val ID: String,
+    val id: String,
     val name: String,
     val description: String,
     val genre: String,
