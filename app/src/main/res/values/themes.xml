@@ -53,4 +53,12 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+     <style name="Base.Widget.AppCompat.RatingBar.Indicator.PurpleStars" parent="Widget.AppCompat.RatingBar.Indicator">
+         <item name="android:progressDrawable">@drawable/purple_rating_bar</item>
+         <item name="android:stepSize">1.0</item>
+         <item name="android:numStars">5</item>
+         <item name="android:scaleX">1.0</item>
+         <item name="android:scaleY">1.0</item>
+     </style>
+
 </resources>
