@@ -12,6 +12,9 @@
 
         <action
             android:id="@+id/toShowNavGraph"
+            app:popUpToInclusive="true"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/loginFragment"
             app:destination="@+id/showNavGraph"/>
     </fragment>
 

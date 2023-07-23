@@ -1,12 +1,16 @@
 package infinuma.android.shows.ui.shows
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
+import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.model.Show
@@ -57,6 +61,12 @@ class ShowsFragment : Fragment() {
             }
 
             btnLogOut.setOnClickListener {
+                val preferences = requireActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+                preferences.edit {
+                    putString(Constants().keyEmail, "")
+                    putString(Constants().keyPassword, "")
+                    putBoolean(Constants().keyLogedIn, false)
+                }
                 findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
             }
         }
