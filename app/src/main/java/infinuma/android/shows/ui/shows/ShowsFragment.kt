@@ -3,6 +3,7 @@ package infinuma.android.shows.ui.shows
 import android.Manifest
 import android.R.attr
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -177,12 +178,12 @@ class ShowsFragment : Fragment() {
     }
 
     private fun setUserOptions() {
-        val dialog = BottomSheetDialog(requireContext())
+        val dialogUserOptions = BottomSheetDialog(requireContext())
         _dialogBinding = DialogUserOptionsBinding.inflate(layoutInflater)
-        dialog.setContentView(dialogBinding.root)
+        dialogUserOptions.setContentView(dialogBinding.root)
 
         binding.userOptions.setOnClickListener {
-            dialog.show()
+            dialogUserOptions.show()
         }
 
         dialogBinding.apply {
@@ -196,17 +197,31 @@ class ShowsFragment : Fragment() {
             }
             setProfileImages()
             btnLogOut.setOnClickListener {
-                val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
-                preferences.edit {
-                    putString(Constants.keyEmail, "")
-                    putString(Constants.keyPassword, "")
-                    putBoolean(Constants.keyLogedIn, false)
-                    putString(Constants.keyImageUri, "")
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Logging out")
+                builder.setMessage("Are you sure you want to log out?")
+                builder.setPositiveButton(android.R.string.yes) { dialog, which ->
+                    dialogUserOptions.cancel()
+                    logOut()
                 }
-                dialog.cancel()
-                findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
+                builder.setNegativeButton(android.R.string.no) { dialog, which ->
+                    dialog.cancel()
+                }
+                builder.show()
+
             }
         }
+    }
+
+    private fun logOut(){
+        val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
+        preferences.edit {
+            putString(Constants.keyEmail, "")
+            putString(Constants.keyPassword, "")
+            putBoolean(Constants.keyLogedIn, false)
+            putString(Constants.keyImageUri, "")
+        }
+        findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
     }
 
 
