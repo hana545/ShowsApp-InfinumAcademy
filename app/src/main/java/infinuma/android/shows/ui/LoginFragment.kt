@@ -53,11 +53,11 @@ class LoginFragment : Fragment() {
     }
 
     private fun rememberUser() {
-        val preferences = requireActivity().getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE)
+        val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         preferences.edit {
-            putString(Constants().keyEmail, binding.loginInputEmail.text.toString())
-            putString(Constants().keyPassword, binding.loginInputPassword.text.toString())
-            putBoolean(Constants().keyLogedIn, true)
+            putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
+            putString(Constants.keyPassword, binding.loginInputPassword.text.toString())
+            putBoolean(Constants.keyLogedIn, true)
         }
     }
 

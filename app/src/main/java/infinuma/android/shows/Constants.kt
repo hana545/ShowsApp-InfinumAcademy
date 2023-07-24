@@ -1,6 +1,6 @@
 package infinuma.android.shows
 
-class Constants {
+object Constants {
     val SHARED_PREFERENCES = "USER_INFO"
     val keyEmail = "USER_EMAIL"
     val keyPassword = "USER_PASSWORD"

@@ -114,7 +114,7 @@ class ShowsFragment : Fragment() {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.CAMERA
             ),
-            Constants().PERMISSION_REQUEST_CODE
+            Constants.PERMISSION_REQUEST_CODE
         )
     }
 
@@ -124,7 +124,7 @@ class ShowsFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == Constants().PERMISSION_REQUEST_CODE) {
+        if (requestCode == Constants.PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                 grantResults[1] == PackageManager.PERMISSION_GRANTED &&
@@ -144,22 +144,22 @@ class ShowsFragment : Fragment() {
             "infinuma.android.shows.fileprovider",
             image!!)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoUri)
-        startActivityForResult(intent, Constants().CAMERA_REQUEST_CODE);
+        startActivityForResult(intent, Constants.CAMERA_REQUEST_CODE);
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants().CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == Constants.CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-            val preferences = requireActivity().getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE)
+            val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
             preferences.edit {
-                putString(Constants().keyImageUri, currentPhotoUri.toString())
+                putString(Constants.keyImageUri, currentPhotoUri.toString())
             }
             setProfileImages()
         }
     }
     private fun setProfileImages(){
-        val profileImageUri = requireActivity().getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants().keyImageUri, "")
+        val profileImageUri = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants.keyImageUri, "")
         if (profileImageUri!!.isNotEmpty()) {
             Glide.with(this)
                 .load(profileImageUri.toUri())
@@ -186,7 +186,7 @@ class ShowsFragment : Fragment() {
         }
 
         dialogBinding.apply {
-            userEmailDisplay.text = requireActivity().getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants().keyEmail, "")
+            userEmailDisplay.text = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants.keyEmail, "")
             btnChangeProfilePhoto.setOnClickListener {
                 if (isReadWritePermissionGranted()) {
                     openCamera()
@@ -196,12 +196,12 @@ class ShowsFragment : Fragment() {
             }
             setProfileImages()
             btnLogOut.setOnClickListener {
-                val preferences = requireActivity().getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE)
+                val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
                 preferences.edit {
-                    putString(Constants().keyEmail, "")
-                    putString(Constants().keyPassword, "")
-                    putBoolean(Constants().keyLogedIn, false)
-                    putString(Constants().keyImageUri, "")
+                    putString(Constants.keyEmail, "")
+                    putString(Constants.keyPassword, "")
+                    putBoolean(Constants.keyLogedIn, false)
+                    putString(Constants.keyImageUri, "")
                 }
                 dialog.cancel()
                 findNavController().navigate(ShowsFragmentDirections.actionShowsFragmentToLoginFragment())
