@@ -7,6 +7,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
@@ -15,6 +17,7 @@ import infinuma.android.shows.databinding.FragmentShowDetailsBinding
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.ui.MainActivity
+import infinuma.android.shows.ui.shows.ShowsViewModel
 
 class ShowDetailsFragment : Fragment() {
 
@@ -24,7 +27,7 @@ class ShowDetailsFragment : Fragment() {
 
     private lateinit var adapter: ReviewsAdapter
 
-    private lateinit var show: Show
+    private val viewModel by viewModels<ShowDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +45,7 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        show = arguments?.getSerializable("show") as Show
+        viewModel.setShow(arguments?.getSerializable("show") as Show)
 
         bindShowData()
 
@@ -50,11 +53,15 @@ class ShowDetailsFragment : Fragment() {
         setupReviewsAdapter()
         setupAddReviewDialog()
 
-        if(show.reviews.size == 0) {
-            hideReviews()
-        } else {
-            showReviews()
-        }
+        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+            if (currentShow != null) {
+                if (currentShow.reviews.size == 0) {
+                    hideReviews()
+                } else {
+                    showReviews()
+                }
+            }
+        })
     }
 
     private fun setupAddReviewDialog() {
@@ -63,7 +70,6 @@ class ShowDetailsFragment : Fragment() {
         val dialogBinding = DialogAddReviewBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        var averageReview = 0.0F
         var ratingValue = 0
         binding.btnAddReview.setOnClickListener {
             dialog.show()
@@ -79,38 +85,34 @@ class ShowDetailsFragment : Fragment() {
             }
         }
         dialogBinding.btnSubmitReview.setOnClickListener {
-            addReview(ratingValue, dialogBinding.reviewText.text.toString())
-            averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
-            showReviews()
-            binding.apply {
-                reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
-                reviewInfoRatingBar.rating = averageReview
-            }
-            adapter.notifyItemInserted(show.reviews.lastIndex)
+            viewModel.addReview(ratingValue, dialogBinding.reviewText.text.toString())
+            viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+                if (currentShow != null) {
+                    showReviews()
+                    binding.apply {
+                        reviewInfo.text = getString(R.string.reviews_info, currentShow.reviews.size, viewModel.getAverageReview())
+                        reviewInfoRatingBar.rating = viewModel.getAverageReview()
+                    }
+                    adapter.notifyItemInserted(currentShow.reviews.lastIndex)
+                }
+            })
             Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
             dialog.cancel()
         }
     }
 
-    private fun addReview(rating : Int, text: String) {
-        show.reviews.add(
-            Review(
-                "dummy_user",
-                rating,
-                text,
-                R.drawable.ic_profile_placeholder
-            )
-        )
-    }
-
     private fun setupReviewsAdapter() {
-        adapter = ReviewsAdapter(show.reviews)
-        binding.apply {
-            recyclerViewReviews.adapter = adapter
-            recyclerViewReviews.addItemDecoration(
-                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-            )
-        }
+        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+            if (currentShow != null) {
+                adapter = ReviewsAdapter(currentShow.reviews)
+                binding.apply {
+                    recyclerViewReviews.adapter = adapter
+                    recyclerViewReviews.addItemDecoration(
+                        DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+                    )
+                }
+            }
+        })
     }
 
     private fun showReviews() {
@@ -132,12 +134,16 @@ class ShowDetailsFragment : Fragment() {
     }
 
     private fun bindShowData() {
-        binding.apply {
-            toolbar.title = show.name
-            showGenre.text = show.genre
-            showDescription.text = show.description
-            showImage.setImageResource(show.imageResourceId)
-        }
+        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+            if (currentShow != null) {
+                binding.apply {
+                    toolbar.title = currentShow.name
+                    showGenre.text = currentShow.genre
+                    showDescription.text = currentShow.description
+                    showImage.setImageResource(currentShow.imageResourceId)
+                }
+            }
+        })
     }
 
     private fun setupSupportActionBar() {
