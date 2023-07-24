@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
@@ -39,7 +40,6 @@ import java.io.IOException
 class ShowsFragment : Fragment() {
 
     private var _binding: FragmentShowsBinding? = null
-
     private var _dialogBinding : DialogUserOptionsBinding ? = null
 
     private val binding get() = _binding!!
@@ -51,10 +51,14 @@ class ShowsFragment : Fragment() {
 
     private lateinit var currentPhotoUri : Uri
 
+    private lateinit var sharPreferences : SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inflater = TransitionInflater.from(requireContext())
         exitTransition = inflater.inflateTransition(R.transition.slide_right)
+        sharPreferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
+
     }
 
     override fun onCreateView(
@@ -79,7 +83,6 @@ class ShowsFragment : Fragment() {
 
         binding.apply {
             recyclerViewShows.adapter = adapter
-
             showsSwitch.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     removeShowsList()
@@ -104,7 +107,7 @@ class ShowsFragment : Fragment() {
         )
         return readPermission == PackageManager.PERMISSION_GRANTED &&
             writePermission == PackageManager.PERMISSION_GRANTED &&
-        cameraPermission == PackageManager.PERMISSION_GRANTED
+            cameraPermission == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestReadWritePermission() {
@@ -152,15 +155,14 @@ class ShowsFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Constants.CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-            val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
-            preferences.edit {
+           sharPreferences.edit {
                 putString(Constants.keyImageUri, currentPhotoUri.toString())
             }
             setProfileImages()
         }
     }
     private fun setProfileImages(){
-        val profileImageUri = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants.keyImageUri, "")
+        val profileImageUri = sharPreferences.getString(Constants.keyImageUri, "")
         if (profileImageUri!!.isNotEmpty()) {
             Glide.with(this)
                 .load(profileImageUri.toUri())
@@ -187,7 +189,7 @@ class ShowsFragment : Fragment() {
         }
 
         dialogBinding.apply {
-            userEmailDisplay.text = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Constants.keyEmail, "")
+            userEmailDisplay.text = sharPreferences.getString(Constants.keyEmail, "")
             btnChangeProfilePhoto.setOnClickListener {
                 if (isReadWritePermissionGranted()) {
                     openCamera()
@@ -214,8 +216,7 @@ class ShowsFragment : Fragment() {
     }
 
     private fun logOut(){
-        val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
-        preferences.edit {
+        sharPreferences.edit {
             putString(Constants.keyEmail, "")
             putString(Constants.keyPassword, "")
             putBoolean(Constants.keyLogedIn, false)
