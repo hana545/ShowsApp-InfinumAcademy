@@ -1,6 +1,7 @@
 package infinuma.android.shows.ui.show_details
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -76,6 +77,7 @@ class ShowDetailsFragment : Fragment() {
             dialogBinding.apply {
                 reviewRating.rating = 0F
                 reviewText.text?.clear()
+                btnSubmitReview.isEnabled = false
                 reviewRating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
                     if (rating > 0) {
                         dialogBinding.btnSubmitReview.isEnabled = true
