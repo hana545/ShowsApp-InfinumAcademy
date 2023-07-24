@@ -29,12 +29,16 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentPhotoUri = MutableLiveData<Uri>()
     val currentPhotoUri: LiveData<Uri> get() = _currentPhotoUri
 
+    private val _profilePhotoUri = MutableLiveData<Uri>()
+    val profilePhotoUri: LiveData<Uri> get() = _profilePhotoUri
+
 
     init {
         _listShows.value = setShowList()
         _userEmail.value = sharPreferences.getString(Constants.keyEmail, "")
         _userLogedIn.value = sharPreferences.getBoolean(Constants.keyLogedIn, false)
-        _currentPhotoUri.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
+        _profilePhotoUri.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
+        _currentPhotoUri.value = Uri.EMPTY
     }
 
     fun removeShowsList() {
@@ -68,6 +72,10 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setCurrentPhotoUri(uri: Uri) {
         _currentPhotoUri.value = uri
+    }
+
+    fun setProfilePhotoUri(uri: Uri) {
+        _profilePhotoUri.value = uri
         sharPreferences.edit {
             putString(Constants.keyImageUri, uri.toString())
         }

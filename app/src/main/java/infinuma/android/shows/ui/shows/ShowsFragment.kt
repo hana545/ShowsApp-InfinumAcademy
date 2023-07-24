@@ -178,14 +178,15 @@ class ShowsFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Constants.CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            viewModel.currentPhotoUri.value?.let { viewModel.setProfilePhotoUri(it) }
             setProfileImages()
         }
         if (requestCode == Constants.IMAGE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            data.data?.let { viewModel.setCurrentPhotoUri(it) }
+            data.data?.let { viewModel.setProfilePhotoUri(it) }
         }
     }
     private fun setProfileImages(){
-        viewModel.currentPhotoUri.observe(viewLifecycleOwner) { uri ->
+        viewModel.profilePhotoUri.observe(viewLifecycleOwner) { uri ->
             if (uri.toString().isNotEmpty()) {
                 Glide.with(this)
                     .load(uri)
