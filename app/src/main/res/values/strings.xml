@@ -9,8 +9,9 @@
     <string name="list_reviews_empty">No reviews yet</string>
     <string name="reviews_title">Reviews</string>
     <string name="reviews_info">%d REVIEWS, %.2f AVERAGE</string>
-    <string name="log_out">Log out</string>
+    <string name="log_out">Logout</string>
     <string name="review_text">Comment</string>
     <string name="submit">Submit</string>
     <string name="remember_me">Remember me</string>
+    <string name="change_profile_photo">Change profile photo</string>
 </resources>

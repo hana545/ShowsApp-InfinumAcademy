@@ -22,9 +22,18 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Material.WhiteRoundedBorderedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/purple_500</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="strokeColor">@color/purple_500</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="cornerRadius">30dp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="Material.WhiteRoundedButton" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">@color/black</item>
-        <item name="backgroundTint">@color/white_button</item>
         <item name="android:background">@drawable/rounded_button</item>
         <item name="textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
@@ -51,6 +60,14 @@
     <style name="CollapsedAppBar" parent="@android:style/TextAppearance.Medium">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.RatingBar.Indicator.PurpleStars" parent="Widget.AppCompat.RatingBar.Indicator">
+        <item name="android:progressDrawable">@drawable/purple_rating_bar</item>
+        <item name="android:stepSize">1.0</item>
+        <item name="android:numStars">5</item>
+        <item name="android:scaleX">1.0</item>
+        <item name="android:scaleY">1.0</item>
     </style>
 
 </resources>

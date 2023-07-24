@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isLogedIn() : Boolean{
-        val preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val preferences = this.getSharedPreferences(Constants().SHARED_PREFERENCES, Context.MODE_PRIVATE)
         return preferences.getBoolean(Constants().keyLogedIn, false)
     }
 }
