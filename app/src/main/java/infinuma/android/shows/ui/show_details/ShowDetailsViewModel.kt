@@ -9,31 +9,27 @@ import infinuma.android.shows.model.Show
 
 class ShowDetailsViewModel : ViewModel() {
 
-    private val _show = MutableLiveData<Show?>()
-    val show: LiveData<Show?> get() = _show
+    private val _showLiveData = MutableLiveData<Show?>()
+    val showLiveData: LiveData<Show?> = _showLiveData
 
     fun setShow(show: Show) {
-        _show.value = show
+        _showLiveData.value = show
     }
 
     fun addReview(rating: Int, text: String) {
-        val currentShow = _show.value
+        val currentShow = _showLiveData.value
         if (currentShow != null) {
             currentShow.reviews.add(
                 Review(
                     "dummy_user",
                     rating,
                     text,
-                    R.drawable.ic_profile_placeholder
+                    R.drawable.ic_profile_placeholder,
                 )
             )
-            _show.value = currentShow
+            currentShow.avgReview = currentShow?.reviews?.sumOf { it.review }?.toFloat() ?: (0f / currentShow?.reviews?.size?.toFloat()!!)
+            _showLiveData.value = currentShow
         }
     }
-    fun getAverageReview(): Float {
-        val currentShow = _show.value
-        return currentShow?.reviews?.sumOf { it.review }?.toFloat() ?: (0f / currentShow?.reviews?.size?.toFloat()!!) ?: 1f
-    }
-
 
 }

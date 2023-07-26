@@ -9,6 +9,7 @@ data class Show(
     val description: String,
     val genre: String,
     @DrawableRes val imageResourceId: Int,
-    val reviews: MutableList<Review>
+    val reviews: MutableList<Review>,
+    var avgReview: Float = 0F
 ) : Serializable
 

@@ -3,13 +3,11 @@ package infinuma.android.shows.ui.shows
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.model.Show
@@ -17,48 +15,35 @@ import infinuma.android.shows.model.Show
 class ShowsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val sharPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
-    private val _listShows = MutableLiveData<MutableList<Show>>()
-    val listShows: LiveData<MutableList<Show>> get() = _listShows
+    private val _listShowsLiveData = MutableLiveData<MutableList<Show>>()
+    val listShowsLiveData: LiveData<MutableList<Show>> get() = _listShowsLiveData
 
-    private val _userEmail = MutableLiveData<String>()
-    val userEmail: LiveData<String> get() = _userEmail
+    private val _userEmailLiveData = MutableLiveData<String>()
+    private val _userLogedInLiveData = MutableLiveData<Boolean>()
 
-    private val _userLogedIn = MutableLiveData<Boolean>()
-    val userLogedIn: LiveData<Boolean> get() = _userLogedIn
+    private val _currentPhotoUriLiveData = MutableLiveData<Uri>()
+    val currentPhotoUriLiveData: LiveData<Uri> get() = _currentPhotoUriLiveData
 
-    private val _currentPhotoUri = MutableLiveData<Uri>()
-    val currentPhotoUri: LiveData<Uri> get() = _currentPhotoUri
-
-    private val _profilePhotoUri = MutableLiveData<Uri>()
-    val profilePhotoUri: LiveData<Uri> get() = _profilePhotoUri
+    private val _profilePhotoUriLiveData = MutableLiveData<Uri>()
+    val profilePhotoUriLiveData: LiveData<Uri> get() = _profilePhotoUriLiveData
 
 
     init {
-        _listShows.value = setShowList()
-        _userEmail.value = sharPreferences.getString(Constants.keyEmail, "")
-        _userLogedIn.value = sharPreferences.getBoolean(Constants.keyLogedIn, false)
-        _profilePhotoUri.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
-        _currentPhotoUri.value = Uri.EMPTY
+        _listShowsLiveData.value = setShowList()
+        _userEmailLiveData.value = sharPreferences.getString(Constants.keyEmail, "")
+        _userLogedInLiveData.value = sharPreferences.getBoolean(Constants.keyLogedIn, false)
+        _profilePhotoUriLiveData.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
+        _currentPhotoUriLiveData.value = Uri.EMPTY
     }
 
     fun removeShowsList() {
-        _listShows.value?.clear()
-        _listShows.value = _listShows.value
+        _listShowsLiveData.value?.clear()
+        _listShowsLiveData.value = _listShowsLiveData.value
     }
 
     fun addShowsList() {
-        _listShows.value?.addAll(setShowList())
-        _listShows.value = _listShows.value
-    }
-
-    fun updateUserInfo(email: String, password : String, remember : Boolean) {
-        sharPreferences.edit {
-            putString(Constants.keyEmail, email)
-            putString(Constants.keyPassword, password)
-            putBoolean(Constants.keyLogedIn, remember)
-        }
-        _userEmail.value = email
-        _userLogedIn.value = remember
+        _listShowsLiveData.value?.addAll(setShowList())
+        _listShowsLiveData.value = _listShowsLiveData.value
     }
 
     fun clearSharedPreferences() {
@@ -71,11 +56,11 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setCurrentPhotoUri(uri: Uri) {
-        _currentPhotoUri.value = uri
+        _currentPhotoUriLiveData.value = uri
     }
 
     fun setProfilePhotoUri(uri: Uri) {
-        _profilePhotoUri.value = uri
+        _profilePhotoUriLiveData.value = uri
         sharPreferences.edit {
             putString(Constants.keyImageUri, uri.toString())
         }

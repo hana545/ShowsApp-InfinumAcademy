@@ -1,7 +1,6 @@
 package infinuma.android.shows.ui.show_details
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -18,7 +17,6 @@ import infinuma.android.shows.databinding.FragmentShowDetailsBinding
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.ui.MainActivity
-import infinuma.android.shows.ui.shows.ShowsViewModel
 
 class ShowDetailsFragment : Fragment() {
 
@@ -51,18 +49,22 @@ class ShowDetailsFragment : Fragment() {
         bindShowData()
 
         setupSupportActionBar()
-        setupReviewsAdapter()
+        viewModel.showLiveData.value?.let { setupReviewsAdapter(it.reviews) }
         setupAddReviewDialog()
 
-        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+        viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
             if (currentShow != null) {
                 if (currentShow.reviews.size == 0) {
                     hideReviews()
                 } else {
                     showReviews()
+                    binding.apply {
+                        reviewInfo.text = getString(R.string.reviews_info, currentShow.reviews.size, currentShow.avgReview)
+                        reviewInfoRatingBar.rating = currentShow.avgReview
+                    }
                 }
             }
-        })
+        }
     }
 
     private fun setupAddReviewDialog() {
@@ -88,33 +90,20 @@ class ShowDetailsFragment : Fragment() {
         }
         dialogBinding.btnSubmitReview.setOnClickListener {
             viewModel.addReview(ratingValue, dialogBinding.reviewText.text.toString())
-            viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
-                if (currentShow != null) {
-                    showReviews()
-                    binding.apply {
-                        reviewInfo.text = getString(R.string.reviews_info, currentShow.reviews.size, viewModel.getAverageReview())
-                        reviewInfoRatingBar.rating = viewModel.getAverageReview()
-                    }
-                    adapter.notifyItemInserted(currentShow.reviews.lastIndex)
-                }
-            })
+            viewModel.showLiveData.value?.reviews?.let { it1 -> adapter.notifyItemInserted(it1.lastIndex) }
             Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
             dialog.cancel()
         }
     }
 
-    private fun setupReviewsAdapter() {
-        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
-            if (currentShow != null) {
-                adapter = ReviewsAdapter(currentShow.reviews)
-                binding.apply {
-                    recyclerViewReviews.adapter = adapter
-                    recyclerViewReviews.addItemDecoration(
-                        DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-                    )
-                }
-            }
-        })
+    private fun setupReviewsAdapter(reviews : MutableList<Review>) {
+        adapter = ReviewsAdapter(reviews)
+        binding.apply {
+            recyclerViewReviews.adapter = adapter
+            recyclerViewReviews.addItemDecoration(
+                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+            )
+        }
     }
 
     private fun showReviews() {
@@ -136,7 +125,7 @@ class ShowDetailsFragment : Fragment() {
     }
 
     private fun bindShowData() {
-        viewModel.show.observe(viewLifecycleOwner, Observer { currentShow ->
+        viewModel.showLiveData.observe(viewLifecycleOwner, Observer { currentShow ->
             if (currentShow != null) {
                 binding.apply {
                     toolbar.title = currentShow.name
