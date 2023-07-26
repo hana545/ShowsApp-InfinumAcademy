@@ -19,7 +19,7 @@
             android:id="@+id/action_showsFragment_to_loginFragment"
             app:popUpToInclusive="true"
             app:launchSingleTop="true"
-            app:popUpTo="@id/loginFragment"
+            app:popUpTo="@id/showsFragment"
             app:destination="@id/loginFragment"/>
 
     </fragment>

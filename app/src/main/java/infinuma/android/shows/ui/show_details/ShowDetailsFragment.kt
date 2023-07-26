@@ -7,6 +7,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
@@ -24,7 +26,7 @@ class ShowDetailsFragment : Fragment() {
 
     private lateinit var adapter: ReviewsAdapter
 
-    private lateinit var show: Show
+    private val viewModel by viewModels<ShowDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,22 +44,27 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        show = arguments?.getSerializable("show") as Show
+        viewModel.setShow(arguments?.getSerializable("show") as Show)
 
         bindShowData()
 
         setupSupportActionBar()
-        setupReviewsAdapter()
+        viewModel.showLiveData.value?.let { setupReviewsAdapter(it.reviews) }
         setupAddReviewDialog()
 
-
-        if(show.reviews.size == 0) {
-            hideReviews()
-        } else {
-            showReviews()
+        viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
+            if (currentShow != null) {
+                if (currentShow.reviews.size == 0) {
+                    hideReviews()
+                } else {
+                    showReviews()
+                    binding.apply {
+                        reviewInfo.text = getString(R.string.reviews_info, currentShow.reviews.size, currentShow.avgReview)
+                        reviewInfoRatingBar.rating = currentShow.avgReview
+                    }
+                }
+            }
         }
-
-
     }
 
     private fun setupAddReviewDialog() {
@@ -66,48 +73,31 @@ class ShowDetailsFragment : Fragment() {
         val dialogBinding = DialogAddReviewBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        var averageReview : Float = 0.0F
+        var ratingValue = 0
         binding.btnAddReview.setOnClickListener {
             dialog.show()
             dialogBinding.apply {
                 reviewRating.rating = 0F
                 reviewText.text?.clear()
+                btnSubmitReview.isEnabled = false
                 reviewRating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
                     if (rating > 0) {
-                        dialogBinding.apply {
-                            btnAddReview.isEnabled = true
-                            btnAddReview.setOnClickListener {
-                                addReview(rating.toInt(), dialogBinding.reviewText.text.toString())
-                                averageReview = show.reviews.sumOf { it.review }.toFloat() / show.reviews.size.toFloat()
-                                showReviews()
-                                binding.apply {
-                                    reviewInfo.text = getString(R.string.reviews_info, show.reviews.size, averageReview)
-                                    reviewInfoRatingBar.rating = averageReview
-                                }
-                                adapter.notifyItemInserted(show.reviews.lastIndex)
-                                Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
-                                dialog.cancel()
-                            }
-                        }
+                        dialogBinding.btnSubmitReview.isEnabled = true
+                        ratingValue = rating.toInt()
                     }
                 }
             }
         }
+        dialogBinding.btnSubmitReview.setOnClickListener {
+            viewModel.addReview(ratingValue, dialogBinding.reviewText.text.toString())
+            viewModel.showLiveData.value?.reviews?.let { it1 -> adapter.notifyItemInserted(it1.lastIndex) }
+            Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+            dialog.cancel()
+        }
     }
 
-    private fun addReview(rating : Int, text: String) {
-        show.reviews.add(
-            Review(
-                "dummy_user",
-                rating,
-                text,
-                R.drawable.ic_profile_placeholder
-            )
-        )
-    }
-
-    private fun setupReviewsAdapter() {
-        adapter = ReviewsAdapter(show.reviews)
+    private fun setupReviewsAdapter(reviews : MutableList<Review>) {
+        adapter = ReviewsAdapter(reviews)
         binding.apply {
             recyclerViewReviews.adapter = adapter
             recyclerViewReviews.addItemDecoration(
@@ -135,12 +125,16 @@ class ShowDetailsFragment : Fragment() {
     }
 
     private fun bindShowData() {
-        binding.apply {
-            toolbar.title = show.name
-            showGenre.text = show.genre
-            showDescription.text = show.description
-            showImage.setImageResource(show.imageResourceId)
-        }
+        viewModel.showLiveData.observe(viewLifecycleOwner, Observer { currentShow ->
+            if (currentShow != null) {
+                binding.apply {
+                    toolbar.title = currentShow.name
+                    showGenre.text = currentShow.genre
+                    showDescription.text = currentShow.description
+                    showImage.setImageResource(currentShow.imageResourceId)
+                }
+            }
+        })
     }
 
     private fun setupSupportActionBar() {
