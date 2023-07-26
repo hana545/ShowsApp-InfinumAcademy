@@ -27,7 +27,7 @@ class ShowDetailsViewModel : ViewModel() {
                     R.drawable.ic_profile_placeholder,
                 )
             )
-            currentShow.avgReview = currentShow?.reviews?.sumOf { it.review }?.toFloat() ?: (0f / currentShow?.reviews?.size?.toFloat()!!)
+            currentShow.avgReview = currentShow.reviews.sumOf { it.review }.toFloat() / currentShow.reviews.size.toFloat()
             _showLiveData.value = currentShow
         }
     }
