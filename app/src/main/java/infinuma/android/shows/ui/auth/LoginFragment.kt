@@ -55,6 +55,7 @@ class LoginFragment : Fragment() {
 
         binding.apply {
             loginBtn.setOnClickListener {
+                binding.progressBar.visibility = View.VISIBLE
                 viewModel.onLoginButtonClicked(
                     username = loginInputEmail.text.toString(),
                     password = loginInputPassword.text.toString()
@@ -67,6 +68,7 @@ class LoginFragment : Fragment() {
         }
 
         viewModel.loginResult.observe(viewLifecycleOwner){ result ->
+            binding.progressBar.visibility = View.GONE
             if (result) {
                 if (binding.checkboxRememberMe.isChecked) rememberUser(true) else rememberUser(false)
                 findNavController().navigate(R.id.toShowNavGraph)

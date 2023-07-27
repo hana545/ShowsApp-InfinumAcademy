@@ -21,19 +21,15 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
     private val _listShowsLiveData = MutableLiveData<MutableList<Show>>()
     val listShowsLiveData: LiveData<MutableList<Show>> get() = _listShowsLiveData
 
-    private val _userEmailLiveData = MutableLiveData<String>()
-    private val _userLogedInLiveData = MutableLiveData<Boolean>()
-
     private val _currentPhotoUriLiveData = MutableLiveData<Uri>()
     val currentPhotoUriLiveData: LiveData<Uri> get() = _currentPhotoUriLiveData
 
     private val _profilePhotoUriLiveData = MutableLiveData<Uri>()
     val profilePhotoUriLiveData: LiveData<Uri> get() = _profilePhotoUriLiveData
 
+
     init {
         _listShowsLiveData.value = mutableListOf()
-        _userEmailLiveData.value = sharPreferences.getString(Constants.keyEmail, "")
-        _userLogedInLiveData.value = sharPreferences.getBoolean(Constants.keyLogedIn, false)
         _profilePhotoUriLiveData.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
         _currentPhotoUriLiveData.value = Uri.EMPTY
     }
@@ -48,6 +44,7 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
 
     }
     fun getShowList(): LiveData<MutableList<Show>> {
+        getShows()
         return listShowsLiveData
     }
 

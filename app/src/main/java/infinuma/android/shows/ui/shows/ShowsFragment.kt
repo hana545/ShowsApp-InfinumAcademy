@@ -26,12 +26,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.Constants
 import infinuma.android.shows.FileUtil
 import infinuma.android.shows.R
+import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.networking.ApiModule
 import java.io.File
 import java.io.IOException
+import kotlinx.coroutines.delay
 
 class ShowsFragment : Fragment() {
 
@@ -44,6 +46,8 @@ class ShowsFragment : Fragment() {
     private val dialogPictureOptionsBinding get() = _dialogPictureOptionsBinding!!
 
     private lateinit var adapter: ShowsAdapter
+
+    private lateinit var loading: Dialog
 
     private val viewModel by viewModels<ShowsViewModel>()
 
@@ -63,25 +67,23 @@ class ShowsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loading = loadingDialog()
+        loading.show()
 
-        viewModel.getShows()
         viewModel.getShowList().observe(viewLifecycleOwner) { shows ->
             adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!) { show ->
                 val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
                 findNavController().navigate(direction)
             }
             binding.recyclerViewShows.adapter = adapter
-        }
-
-
-        viewModel.listShowsLiveData.observe(viewLifecycleOwner) { shows ->
             binding.apply {
                 showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
                 recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
             }
             adapter.notifyDataSetChanged()
-
+            if(shows.isNotEmpty()) loading.cancel()
         }
+
 
         binding.showsSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -233,6 +235,11 @@ class ShowsFragment : Fragment() {
             }
         }
         return dialogPictureOptions
+    }
+    private fun loadingDialog() : Dialog {
+        val dialog= Dialog(requireContext(), android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+        dialog.setContentView(DialogLoadingBinding.inflate(layoutInflater).root)
+        return dialog
     }
 
     private fun logOut(){

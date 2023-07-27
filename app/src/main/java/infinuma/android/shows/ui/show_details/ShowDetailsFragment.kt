@@ -1,5 +1,6 @@
 package infinuma.android.shows.ui.show_details
 
+import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.DialogAddReviewBinding
+import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
 import infinuma.android.shows.ui.MainActivity
 
@@ -24,6 +26,8 @@ class ShowDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: ReviewsAdapter
+
+    private lateinit var loading: Dialog
 
     private val viewModel by viewModels<ShowDetailsViewModel>()
 
@@ -42,6 +46,8 @@ class ShowDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loading = loadingDialog()
+        loading.show()
 
         viewModel.getShow(requireArguments().getString("showId", ""))
         viewModel.getShowReviews(requireArguments().getString("showId", ""))
@@ -62,6 +68,7 @@ class ShowDetailsFragment : Fragment() {
                         reviewInfoRatingBar.rating = if(currentShow.average_rating == null) 0F else currentShow.average_rating!!
                     }
                 }
+                loading.cancel()
             }
         }
     }
@@ -158,6 +165,11 @@ class ShowDetailsFragment : Fragment() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setDisplayShowHomeEnabled(true)
         }
+    }
+    private fun loadingDialog() : Dialog {
+        val dialog= Dialog(requireContext(), android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+        dialog.setContentView(DialogLoadingBinding.inflate(layoutInflater).root)
+        return dialog
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

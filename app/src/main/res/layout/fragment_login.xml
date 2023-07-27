@@ -145,6 +145,18 @@
         android:textColor="@color/white"
         android:buttonTint="@color/white"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/loginInputPasswordLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/loginBtn"
+        android:visibility="gone"
+        android:layout_margin="10dp"
+        android:indeterminateTint="@color/white"/>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loginBtn"
         android:layout_width="match_parent"
@@ -160,6 +172,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/toRegistrationBtn"
         android:layout_width="match_parent"

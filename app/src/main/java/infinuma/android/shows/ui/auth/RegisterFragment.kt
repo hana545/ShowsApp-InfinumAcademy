@@ -49,12 +49,14 @@ class RegisterFragment : Fragment() {
 
     private fun initRegisterButton() = with(binding) {
         registrationBtn.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
             viewModel.onRegisterButtonClicked(
                 username = registrationInputEmail.text.toString(),
                 password = registrationInputPassword.text.toString()
             )
         }
         viewModel.registrationResult.observe(viewLifecycleOwner){ result ->
+            binding.progressBar.visibility = View.GONE
             if (result) {
                 val direction = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment(true)
                 findNavController().navigate(direction)
