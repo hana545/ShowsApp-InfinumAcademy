@@ -4,6 +4,7 @@ import androidx.core.content.FileProvider
 
 object Constants {
     val SHARED_PREFERENCES = "USER_INFO"
+    var keyAccToken = "USER_ACCESS_TOKEN"
     val keyEmail = "USER_EMAIL"
     val keyPassword = "USER_PASSWORD"
     val keyLogedIn = "LOGED_IN"
