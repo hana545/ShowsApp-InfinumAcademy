@@ -5,11 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.util.Util
-import infinuma.android.shows.model.HeaderResponse
+import infinuma.android.shows.Constants
 import infinuma.android.shows.model.SignInRequest
 import infinuma.android.shows.networking.ApiModule
 import kotlinx.coroutines.launch
+import okhttp3.Headers
 import org.json.JSONObject
 
 class LoginViewModel  : ViewModel() {
@@ -20,8 +20,8 @@ class LoginViewModel  : ViewModel() {
     private val _loginErrorResult: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val loginErrorResult: LiveData<String> = _loginErrorResult
 
-    private val _loginToken: MutableLiveData<String> by lazy { MutableLiveData<String>() }
-    val loginToken: LiveData<String> = _loginToken
+    private val _loginAuthData: MutableLiveData<HashMap<String, String>> by lazy { MutableLiveData<HashMap<String, String>>() }
+    val loginAuthData: LiveData<HashMap<String, String>> = _loginAuthData
 
     fun onLoginButtonClicked(username: String, password: String) =
         viewModelScope.launch {
@@ -35,15 +35,12 @@ class LoginViewModel  : ViewModel() {
         }
 
     private suspend fun signInUser(username: String, password: String) {
-        Log.i("LOGIN", "start api call")
         val response = ApiModule.retrofit.signIn(
             request =
             SignInRequest(email = username, password = password)
         )
         if(response.isSuccessful) {
-            //Save token
-            _loginToken.value =  response.headers().get("access-token").toString()
-            Log.i("LOGIN", "tokken:"+loginToken.value )
+            _loginAuthData.value =createHeader(response.headers())
             _loginResult.value = true
         } else {
             //throw IllegalStateException()
@@ -54,6 +51,15 @@ class LoginViewModel  : ViewModel() {
             }
             _loginResult.value = false
         }
+    }
+    private fun createHeader(header : Headers): HashMap<String, String> {
+        val headers = HashMap<String, String>()
+        headers[Constants.headerAuthAccToken] = header.get("access-token").toString()
+        headers[Constants.headerAuthClient] = header.get("client").toString()
+        headers[Constants.headerAuthExpiry] = header.get("expiry").toString()
+        headers[Constants.headerAuthUid] = header.get("uid").toString()
+        headers[Constants.headerAuthContent] = header.get("Content-Type").toString()
+        return headers
     }
 
 }

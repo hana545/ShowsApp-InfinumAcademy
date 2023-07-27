@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -27,6 +29,7 @@ import infinuma.android.shows.R
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
+import infinuma.android.shows.networking.ApiModule
 import java.io.File
 import java.io.IOException
 
@@ -61,17 +64,23 @@ class ShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!.toList()) { show ->
-            val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show)
-            findNavController().navigate(direction)
+        viewModel.getShows()
+        viewModel.getShowList().observe(viewLifecycleOwner) { shows ->
+            adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!) { show ->
+                val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
+                findNavController().navigate(direction)
+            }
+            binding.recyclerViewShows.adapter = adapter
         }
-        binding.recyclerViewShows.adapter = adapter
+
 
         viewModel.listShowsLiveData.observe(viewLifecycleOwner) { shows ->
             binding.apply {
-                binding.showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
-                binding.recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+                showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
+                recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
             }
+            adapter.notifyDataSetChanged()
+
         }
 
         binding.showsSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -233,6 +242,7 @@ class ShowsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        viewModel.clearSharedPreferences()
         _binding = null
     }
 }

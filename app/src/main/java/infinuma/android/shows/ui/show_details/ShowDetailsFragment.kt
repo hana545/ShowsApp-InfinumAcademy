@@ -8,14 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.DialogAddReviewBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
-import infinuma.android.shows.model.Review
-import infinuma.android.shows.model.Show
 import infinuma.android.shows.ui.MainActivity
 
 class ShowDetailsFragment : Fragment() {
@@ -44,23 +43,23 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.setShow(arguments?.getSerializable("show") as Show)
+        viewModel.getShow(requireArguments().getString("showId", ""))
+        viewModel.getShowReviews(requireArguments().getString("showId", ""))
 
         bindShowData()
 
-        setupSupportActionBar()
-        viewModel.showLiveData.value?.let { setupReviewsAdapter(it.reviews) }
+        setupReviewsAdapter()
         setupAddReviewDialog()
 
         viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
             if (currentShow != null) {
-                if (currentShow.reviews.size == 0) {
+                if (currentShow.no_of_reviews == 0) {
                     hideReviews()
                 } else {
                     showReviews()
                     binding.apply {
-                        reviewInfo.text = getString(R.string.reviews_info, currentShow.reviews.size, currentShow.avgReview)
-                        reviewInfoRatingBar.rating = currentShow.avgReview
+                        reviewInfo.text = getString(R.string.reviews_info, currentShow.no_of_reviews, currentShow.average_rating)
+                        reviewInfoRatingBar.rating = if(currentShow.average_rating == null) 0F else currentShow.average_rating!!
                     }
                 }
             }
@@ -88,21 +87,31 @@ class ShowDetailsFragment : Fragment() {
                 }
             }
         }
+
         dialogBinding.btnSubmitReview.setOnClickListener {
-            viewModel.addReview(ratingValue, dialogBinding.reviewText.text.toString())
-            viewModel.showLiveData.value?.reviews?.let { it1 -> adapter.notifyItemInserted(it1.lastIndex) }
-            Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+            viewModel.addReview(dialogBinding.reviewText.text.toString(),ratingValue, viewModel.showLiveData.value!!.id)
+            adapter.notifyItemInserted(viewModel.reviewsLiveData.value!!.size)
+            viewModel.postReviewResult.observe(viewLifecycleOwner) { result ->
+                if (result) Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+                if (!result) Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
+            }
             dialog.cancel()
         }
     }
 
-    private fun setupReviewsAdapter(reviews : MutableList<Review>) {
-        adapter = ReviewsAdapter(reviews)
-        binding.apply {
-            recyclerViewReviews.adapter = adapter
-            recyclerViewReviews.addItemDecoration(
-                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-            )
+    private fun setupReviewsAdapter() {
+        viewModel.getReviewList().observe(viewLifecycleOwner) { reviews ->
+            adapter = ReviewsAdapter(reviews)
+            binding.apply {
+                recyclerViewReviews.adapter = adapter
+                recyclerViewReviews.addItemDecoration(
+                    DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+                )
+            }
+        }
+        viewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+            adapter.notifyDataSetChanged()
+
         }
     }
 
@@ -125,21 +134,27 @@ class ShowDetailsFragment : Fragment() {
     }
 
     private fun bindShowData() {
-        viewModel.showLiveData.observe(viewLifecycleOwner, Observer { currentShow ->
+        viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
             if (currentShow != null) {
                 binding.apply {
-                    toolbar.title = currentShow.name
-                    showGenre.text = currentShow.genre
+                    toolbar.title = currentShow.title
+                    setupSupportActionBar()
                     showDescription.text = currentShow.description
-                    showImage.setImageResource(currentShow.imageResourceId)
+                    Glide.with(binding.root)
+                        .load(currentShow.image_url)
+                        .centerCrop()
+                        .skipMemoryCache(true)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(binding.showImage)
                 }
             }
-        })
+        }
     }
 
     private fun setupSupportActionBar() {
         (activity as MainActivity).apply {
             setSupportActionBar(binding.toolbar)
+            binding.toolbar.title = viewModel.showLiveData.value?.title
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setDisplayShowHomeEnabled(true)
         }

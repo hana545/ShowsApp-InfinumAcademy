@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import androidx.transition.TransitionInflater
 import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentLoginBinding
-import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
 
 class LoginFragment : Fragment() {
@@ -48,8 +46,6 @@ class LoginFragment : Fragment() {
         setupEmailListener()
         setupPasswordListener()
 
-        ApiModule.initRetrofit(requireContext())
-
         if (arguments?.getBoolean("registered") == true) {
             binding.apply {
                 loginTitle.text = "Registration successful"
@@ -72,7 +68,7 @@ class LoginFragment : Fragment() {
 
         viewModel.loginResult.observe(viewLifecycleOwner){ result ->
             if (result) {
-                if (binding.checkboxRememberMe.isChecked) rememberUser()
+                if (binding.checkboxRememberMe.isChecked) rememberUser(true) else rememberUser(false)
                 findNavController().navigate(R.id.toShowNavGraph)
             } else {
                 if(!viewModel.loginErrorResult.value.isNullOrEmpty()) {
@@ -82,12 +78,16 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun rememberUser() {
+    private fun rememberUser(remember : Boolean) {
         val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         preferences.edit {
-            putString(Constants.keyAccToken, viewModel.loginToken.value.toString())
+            putString(Constants.keyAuthAccToken, viewModel.loginAuthData.value?.get(Constants.headerAuthAccToken))
+            putString(Constants.keyAuthClient, viewModel.loginAuthData.value?.get(Constants.headerAuthClient))
+            putString(Constants.keyAuthExpiry, viewModel.loginAuthData.value?.get(Constants.headerAuthExpiry))
+            putString(Constants.keyAuthUid, viewModel.loginAuthData.value?.get(Constants.headerAuthUid))
+            putString(Constants.keyAuthContent, viewModel.loginAuthData.value?.get(Constants.headerAuthContent))
             putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
-            putBoolean(Constants.keyLogedIn, true)
+            putBoolean(Constants.keyLogedIn, remember)
         }
     }
 

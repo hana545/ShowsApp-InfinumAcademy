@@ -3,14 +3,17 @@ package infinuma.android.shows.ui.shows
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.Constants
-import infinuma.android.shows.R
 import infinuma.android.shows.model.Show
+import infinuma.android.shows.networking.ApiModule
+import kotlinx.coroutines.launch
 
 class ShowsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -27,9 +30,8 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
     private val _profilePhotoUriLiveData = MutableLiveData<Uri>()
     val profilePhotoUriLiveData: LiveData<Uri> get() = _profilePhotoUriLiveData
 
-
     init {
-        _listShowsLiveData.value = setShowList()
+        _listShowsLiveData.value = mutableListOf()
         _userEmailLiveData.value = sharPreferences.getString(Constants.keyEmail, "")
         _userLogedInLiveData.value = sharPreferences.getBoolean(Constants.keyLogedIn, false)
         _profilePhotoUriLiveData.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
@@ -42,8 +44,11 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addShowsList() {
-        _listShowsLiveData.value?.addAll(setShowList())
-        _listShowsLiveData.value = _listShowsLiveData.value
+        getShows()
+
+    }
+    fun getShowList(): LiveData<MutableList<Show>> {
+        return listShowsLiveData
     }
 
     fun clearSharedPreferences() {
@@ -66,20 +71,31 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun setShowList(): MutableList<Show> {
-        var autoincrement = 0
-        val description =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        return mutableListOf(
-            Show("SH-${autoincrement++}", "The Office", description, "Sitcom", R.drawable.the_office, mutableListOf()),
-            Show("SH-${autoincrement++}", "Stranger Things", description, "Science fiction", R.drawable.stranger_things, mutableListOf()),
-            Show("SH-${autoincrement++}", "Grey's Anatomy", description, "Medical drama", R.drawable.greys_anatomy, mutableListOf()),
-            Show("SH-${autoincrement++}", "Supernatural", description, "Fantasy drama", R.drawable.supernatural, mutableListOf()),
-            Show("SH-${autoincrement++}", "Parks and Recreation", description, "Sitcom", R.drawable.parks_and_recreation, mutableListOf()),
-            Show("SH-${autoincrement++}", "Breaking Bad", description, "Crime drama", R.drawable.breaking_bad, mutableListOf()),
-            Show("SH-${autoincrement++}", "Friends", description, "Sitcom", R.drawable.friends, mutableListOf())
-        )
+
+    fun getShows() =
+        viewModelScope.launch {
+            try {
+                listShows()
+            } catch (ups: Exception) {
+                Log.e("SHOWLIST", "ups "+ups.toString())
+            }
+        }
+
+    private suspend fun listShows() {
+        val response = ApiModule.retrofit.listShows(createHeader())
+            if (response.isSuccessful) {
+                _listShowsLiveData.value = response.body()?.shows
+            }
+        }
+
+    private fun createHeader(): HashMap<String, String> {
+        val headers = HashMap<String, String>()
+        headers[Constants.headerAuthAccToken] = sharPreferences.getString(Constants.keyAuthAccToken, "")!!
+        headers[Constants.headerAuthClient] = sharPreferences.getString(Constants.keyAuthClient, "")!!
+        headers[Constants.headerAuthTokenType] = Constants.headerAuthTokenType
+        headers[Constants.headerAuthExpiry] = sharPreferences.getString(Constants.keyAuthExpiry, "")!!
+        headers[Constants.headerAuthUid] = sharPreferences.getString(Constants.keyAuthUid, "")!!
+        headers[Constants.headerAuthContent] = sharPreferences.getString(Constants.keyAuthContent, "")!!
+        return headers
     }
-
-
 }

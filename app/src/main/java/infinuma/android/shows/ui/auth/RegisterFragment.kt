@@ -44,8 +44,6 @@ class RegisterFragment : Fragment() {
         setupPasswordListener()
         setupRepeatPasswordListener()
 
-        ApiModule.initRetrofit(requireContext())
-
         initRegisterButton()
     }
 
