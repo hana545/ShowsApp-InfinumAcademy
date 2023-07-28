@@ -24,8 +24,7 @@ interface ShowsApiService {
 
     @POST("/users/sign_in")
     suspend fun signIn(@Body request: SignInRequest): Response<SignInResponse>
-    @GET("/users/me")
-    suspend fun getMe(): Response<User>
+
     @GET("/shows")
     suspend fun listShows(@HeaderMap header: Map<String, String>): Response<ListShowsResponse>
 

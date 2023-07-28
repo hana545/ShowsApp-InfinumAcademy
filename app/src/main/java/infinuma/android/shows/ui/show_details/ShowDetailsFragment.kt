@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavArgs
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -31,6 +33,8 @@ class ShowDetailsFragment : Fragment() {
 
     private val viewModel by viewModels<ShowDetailsViewModel>()
 
+    private val args : ShowDetailsFragmentArgs by navArgs()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -49,8 +53,8 @@ class ShowDetailsFragment : Fragment() {
         loading = loadingDialog()
         loading.show()
 
-        viewModel.getShow(requireArguments().getString("showId", ""))
-        viewModel.getShowReviews(requireArguments().getString("showId", ""))
+        viewModel.getShow(args.showId)
+        viewModel.getShowReviews(args.showId)
 
         bindShowData()
 
@@ -59,13 +63,13 @@ class ShowDetailsFragment : Fragment() {
 
         viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
             if (currentShow != null) {
-                if (currentShow.no_of_reviews == 0) {
+                if (currentShow.numReviews == 0) {
                     hideReviews()
                 } else {
                     showReviews()
                     binding.apply {
-                        reviewInfo.text = getString(R.string.reviews_info, currentShow.no_of_reviews, currentShow.average_rating)
-                        reviewInfoRatingBar.rating = if(currentShow.average_rating == null) 0F else currentShow.average_rating!!
+                        reviewInfo.text = getString(R.string.reviews_info, currentShow.numReviews, currentShow.averageRating)
+                        reviewInfoRatingBar.rating = if(currentShow.averageRating == null) 0F else currentShow.averageRating!!
                     }
                 }
                 loading.cancel()
@@ -98,11 +102,11 @@ class ShowDetailsFragment : Fragment() {
         dialogBinding.btnSubmitReview.setOnClickListener {
             viewModel.addReview(dialogBinding.reviewText.text.toString(),ratingValue, viewModel.showLiveData.value!!.id)
             adapter.notifyItemInserted(viewModel.reviewsLiveData.value!!.size)
-            viewModel.postReviewResult.observe(viewLifecycleOwner) { result ->
-                if (result) Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
-                if (!result) Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
-            }
             dialog.cancel()
+        }
+        viewModel.postReviewResult.observe(viewLifecycleOwner) { result ->
+            if (result) Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+            if (!result) Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -148,8 +152,9 @@ class ShowDetailsFragment : Fragment() {
                     setupSupportActionBar()
                     showDescription.text = currentShow.description
                     Glide.with(binding.root)
-                        .load(currentShow.image_url)
+                        .load(currentShow.imageUrl)
                         .centerCrop()
+                        .placeholder(R.drawable.ic_shows_empty_state)
                         .skipMemoryCache(true)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .into(binding.showImage)

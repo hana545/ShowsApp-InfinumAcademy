@@ -31,8 +31,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:titleTextColor="@color/black"
-                app:title="Title"
+                tools:titleTextColor="@color/black"
+                tools:title="Title"
                 >
 
             </androidx.appcompat.widget.Toolbar>

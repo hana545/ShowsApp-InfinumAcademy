@@ -1,14 +1,13 @@
 package infinuma.android.shows.model
 
-import androidx.annotation.DrawableRes
 import kotlinx.serialization.SerialName
 
 @kotlinx.serialization.Serializable
 data class Review(
-    val id: String,
-    val user: User,
-    val rating: Int,
-    val comment: String,
+    @SerialName("id") val id: String,
+    @SerialName("user") val user: User,
+    @SerialName("rating") val rating: Int,
+    @SerialName("comment") val comment: String,
 )
 @kotlinx.serialization.Serializable
 data class ListReviewsResponse(
@@ -23,5 +22,5 @@ data class ListReviewResponse(
 data class ReviewRequest(
     @SerialName("rating") val rating: Int,
     @SerialName("comment") val comment: String,
-    @SerialName("show_id") val show_id: String
+    @SerialName("show_id") val showId: String
 )

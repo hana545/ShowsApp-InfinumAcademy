@@ -15,7 +15,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -30,10 +29,8 @@ import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
-import infinuma.android.shows.networking.ApiModule
 import java.io.File
 import java.io.IOException
-import kotlinx.coroutines.delay
 
 class ShowsFragment : Fragment() {
 

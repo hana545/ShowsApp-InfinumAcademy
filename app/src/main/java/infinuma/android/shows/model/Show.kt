@@ -4,12 +4,12 @@ import kotlinx.serialization.SerialName
 
 @kotlinx.serialization.Serializable
 data class Show(
-    val id: String,
-    val title: String,
-    val description: String,
-    val image_url: String,
-    var average_rating: Float?,
-    var no_of_reviews: Int?
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String,
+    @SerialName("image_url") val imageUrl: String,
+    @SerialName("average_rating") var averageRating: Float?,
+    @SerialName("no_of_reviews") var numReviews: Int?
 )
 
 @kotlinx.serialization.Serializable

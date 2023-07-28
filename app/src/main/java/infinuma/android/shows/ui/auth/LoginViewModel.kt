@@ -54,11 +54,11 @@ class LoginViewModel  : ViewModel() {
     }
     private fun createHeader(header : Headers): HashMap<String, String> {
         val headers = HashMap<String, String>()
-        headers[Constants.headerAuthAccToken] = header.get("access-token").toString()
-        headers[Constants.headerAuthClient] = header.get("client").toString()
-        headers[Constants.headerAuthExpiry] = header.get("expiry").toString()
-        headers[Constants.headerAuthUid] = header.get("uid").toString()
-        headers[Constants.headerAuthContent] = header.get("Content-Type").toString()
+        headers[Constants.headerAuthAccToken] = header[Constants.headerAuthAccToken].toString()
+        headers[Constants.headerAuthClient] = header[Constants.headerAuthClient].toString()
+        headers[Constants.headerAuthExpiry] = header[Constants.headerAuthExpiry].toString()
+        headers[Constants.headerAuthUid] = header[Constants.headerAuthUid].toString()
+        headers[Constants.headerAuthContent] = header[Constants.headerAuthContent].toString()
         return headers
     }
 

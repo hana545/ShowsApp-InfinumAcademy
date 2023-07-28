@@ -9,11 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentRegisterBinding
-import infinuma.android.shows.networking.ApiModule
 
 class RegisterFragment : Fragment() {
 
@@ -59,7 +59,10 @@ class RegisterFragment : Fragment() {
             binding.progressBar.visibility = View.GONE
             if (result) {
                 val direction = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment(true)
-                findNavController().navigate(direction)
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+                findNavController().navigate(direction, options)
             } else {
                 Toast.makeText(context, "${viewModel.registrationErrorResult.value}", Toast.LENGTH_LONG).show()
             }
@@ -91,7 +94,7 @@ class RegisterFragment : Fragment() {
                     binding.registrationInputPasswordLayout.error = "Your password should contain at least 6 characters"
                     binding.registrationBtn.isEnabled = false
                 } else if (s.toString() != binding.registrationInputRepeatPassword.text.toString() && binding.registrationInputRepeatPassword.text!!.length > 6){
-                        binding.registrationInputRepeatPasswordLayout.error = "Your passwords do not match $s - ${binding.registrationInputPassword.text}"
+                        binding.registrationInputRepeatPasswordLayout.error = "Your passwords do not match"
                         binding.registrationBtn.isEnabled = false
                 } else {
                     binding.registrationInputPasswordLayout.error = null

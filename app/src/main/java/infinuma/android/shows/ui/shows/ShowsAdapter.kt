@@ -24,12 +24,12 @@ class ShowsAdapter (
             binding.showName.text = show.title
             binding.showDescription.text = show.description
             Glide.with(binding.root)
-                .load(show.image_url)
+                .load(show.imageUrl)
                 .centerCrop()
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(binding.showImage)
-            binding.showImage.setImageURI(show.image_url.toUri())
+            binding.showImage.setImageURI(show.imageUrl.toUri())
         }
     }
 

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import infinuma.android.shows.Constants
@@ -71,7 +72,10 @@ class LoginFragment : Fragment() {
             binding.progressBar.visibility = View.GONE
             if (result) {
                 if (binding.checkboxRememberMe.isChecked) rememberUser(true) else rememberUser(false)
-                findNavController().navigate(R.id.toShowNavGraph)
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+                findNavController().navigate(R.id.toShowNavGraph, null, options)
             } else {
                 if(!viewModel.loginErrorResult.value.isNullOrEmpty()) {
                     Toast.makeText(context, "${viewModel.loginErrorResult.value}", Toast.LENGTH_LONG).show()

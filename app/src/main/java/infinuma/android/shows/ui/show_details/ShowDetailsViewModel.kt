@@ -69,7 +69,7 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
             try {
                 postReview(ReviewRequest(rating,comment, showId))
             } catch (ups: Exception) {
-                Log.e("SHOWLIST", "ups "+ups.toString())
+                Log.e("SHOWDETAILLIST", "ups "+ups.toString())
                 _postReviewResult.value = false
             }
         }
@@ -77,7 +77,8 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
     private suspend fun postReview(request : ReviewRequest) {
         val response = ApiModule.retrofit.postReview(createHeader(), request)
         if (response.isSuccessful) {
-            getShowReviews(request.show_id)
+            getShowReviews(request.showId)
+            getShow(request.showId)
             _postReviewResult.value = true
         } else {
             _postReviewResult.value = false
