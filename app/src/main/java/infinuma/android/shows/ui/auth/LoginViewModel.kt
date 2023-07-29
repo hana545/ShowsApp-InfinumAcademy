@@ -23,6 +23,8 @@ class LoginViewModel  : ViewModel() {
     private val _loginAuthData: MutableLiveData<HashMap<String, String>> by lazy { MutableLiveData<HashMap<String, String>>() }
     val loginAuthData: LiveData<HashMap<String, String>> = _loginAuthData
 
+    var imageUri = ""
+
     fun onLoginButtonClicked(username: String, password: String) =
         viewModelScope.launch {
             try {
@@ -40,12 +42,13 @@ class LoginViewModel  : ViewModel() {
             SignInRequest(email = username, password = password)
         )
         if(response.isSuccessful) {
+            imageUri = response.body()?.user!!.imageUrl.toString()
             _loginAuthData.value =createHeader(response.headers())
             _loginResult.value = true
         } else {
             //throw IllegalStateException()
             _loginErrorResult.value = response.errorBody()?.string()?.let {
-                JSONObject(it).getJSONArray("errors").get(0).toString() // or whatever your message is
+                JSONObject(it).getJSONArray("errors").get(0).toString()
             } ?: run {
                 response.code().toString()
             }

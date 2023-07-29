@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -81,15 +83,6 @@ class ShowsFragment : Fragment() {
             if(shows.isNotEmpty()) loading.cancel()
         }
 
-
-        binding.showsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                viewModel.removeShowsList()
-            } else {
-                viewModel.addShowsList()
-            }
-        }
-
         setUserOptions()
     }
     private val requestPermissionLauncher = registerForActivityResult<String, Boolean>(
@@ -139,28 +132,55 @@ class ShowsFragment : Fragment() {
         } catch (ex: IOException) {
             null
         }
-        // Continue only if the File was successfully created
         photoFile?.also {
             viewModel.setCurrentPhotoUri(FileProvider.getUriForFile(
                 requireContext(),
                 Constants.FileProviderAuthority,
                 it
             ))
-            takePicture.launch( viewModel.currentPhotoUriLiveData.value)
+            takePicture.launch(viewModel.currentPhotoUriLiveData.value)
         }
     }
+
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
                 viewModel.currentPhotoUriLiveData.value?.let { viewModel.setProfilePhotoUri(it) }
                 setProfileImages()
+                FileUtil.getImageFile(requireContext())?.let { viewModel.uploadPhoto(it) }
             }
         }
 
-
     val pickGalleryMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            viewModel.setProfilePhotoUri(uri)
+            val photoFile: File? = try {
+                FileUtil.createImageFile(requireContext())
+            } catch (ex: IOException) {
+                null
+            }
+            photoFile?.also {
+                viewModel.setCurrentPhotoUri(uri)
+            }
+            if (photoFile != null) {
+                copyFile(uri, photoFile.toUri())
+                viewModel.setProfilePhotoUri(photoFile.toUri())
+                FileUtil.getImageFile(requireContext())?.let { viewModel.uploadPhoto(it) }
+            }
+        }
+    }
+    @Throws(IOException::class)
+    private fun copyFile(pathFrom: Uri, pathTo: Uri) {
+        requireActivity().contentResolver.openInputStream(pathFrom).use { `in` ->
+            if (`in` == null) return
+            requireActivity().contentResolver.openOutputStream(pathTo).use { out ->
+                if (out == null) return
+                // Transfer bytes from in to out
+                val buf = ByteArray(1024)
+                var len: Int
+                while (`in`.read(buf).also { len = it } > 0) {
+                    out.write(buf, 0, len)
+                }
+            }
         }
     }
 

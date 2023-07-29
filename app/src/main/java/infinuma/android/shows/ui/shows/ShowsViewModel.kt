@@ -11,9 +11,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.Constants
+import infinuma.android.shows.model.RegisterRequest
+import infinuma.android.shows.model.RegisterResponse
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
+import java.io.File
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import org.json.JSONObject
 
 class ShowsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -68,7 +76,6 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     fun getShows() =
         viewModelScope.launch {
             try {
@@ -79,20 +86,37 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     private suspend fun listShows() {
-        val response = ApiModule.retrofit.listShows(createHeader())
+        val response = ApiModule.retrofit.listShows()
             if (response.isSuccessful) {
                 _listShowsLiveData.value = response.body()?.shows
             }
         }
 
-    private fun createHeader(): HashMap<String, String> {
-        val headers = HashMap<String, String>()
-        headers[Constants.headerAuthAccToken] = sharPreferences.getString(Constants.keyAuthAccToken, "")!!
-        headers[Constants.headerAuthClient] = sharPreferences.getString(Constants.keyAuthClient, "")!!
-        headers[Constants.headerAuthTokenType] = Constants.headerAuthTokenType
-        headers[Constants.headerAuthExpiry] = sharPreferences.getString(Constants.keyAuthExpiry, "")!!
-        headers[Constants.headerAuthUid] = sharPreferences.getString(Constants.keyAuthUid, "")!!
-        headers[Constants.headerAuthContent] = sharPreferences.getString(Constants.keyAuthContent, "")!!
-        return headers
+    fun uploadPhoto(file: File) =
+        viewModelScope.launch {
+            try {
+                putPhoto(file)
+            } catch (ups: Exception) {
+                Log.e("UPLOADFILE", "ups "+ups.toString())
+            }
+        }
+
+    private suspend fun putPhoto(file : File) {
+
+        val filePart = MultipartBody.Part.createFormData("image", file.name, RequestBody.create("image/*".toMediaTypeOrNull(), file))
+        val response = ApiModule.retrofit.updateUser(filePart)
+        if (response.isSuccessful) {
+            _profilePhotoUriLiveData.value = response.body()?.user!!.imageUrl?.toUri()
+            sharPreferences.edit {
+                putString(Constants.keyImageUri, response.body()?.user!!.imageUrl)
+            }
+        } else {
+            Log.i("UPLOADFILE", response.errorBody()?.string()?.let {
+                JSONObject(it).getJSONArray("errors").toString() // or whatever your message is
+            } ?: run {
+                response.code().toString()
+            })
+        }
     }
+
 }

@@ -37,7 +37,7 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
         }
 
     private suspend fun getShowByID(id : String) {
-        val response = ApiModule.retrofit.getShowByID(createHeader(), id)
+        val response = ApiModule.retrofit.getShowByID(id)
         if (response.isSuccessful) {
             _showLiveData.value = response.body()?.show
 
@@ -58,7 +58,7 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
         }
 
     private suspend fun listReviews(id : String) {
-        val response = ApiModule.retrofit.listReviews(createHeader(), id)
+        val response = ApiModule.retrofit.listReviews(id)
         if (response.isSuccessful) {
             _reviewsLiveData.value = response.body()?.reviews
         }
@@ -75,7 +75,7 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
         }
 
     private suspend fun postReview(request : ReviewRequest) {
-        val response = ApiModule.retrofit.postReview(createHeader(), request)
+        val response = ApiModule.retrofit.postReview(request)
         if (response.isSuccessful) {
             getShowReviews(request.showId)
             getShow(request.showId)
@@ -84,16 +84,4 @@ class ShowDetailsViewModel(application: Application) : AndroidViewModel(applicat
             _postReviewResult.value = false
         }
     }
-
-    private fun createHeader(): HashMap<String, String> {
-        val headers = HashMap<String, String>()
-        headers[Constants.headerAuthAccToken] = sharPreferences.getString(Constants.keyAuthAccToken, "")!!
-        headers[Constants.headerAuthClient] = sharPreferences.getString(Constants.keyAuthClient, "")!!
-        headers[Constants.headerAuthTokenType] = Constants.headerAuthTokenType
-        headers[Constants.headerAuthExpiry] = sharPreferences.getString(Constants.keyAuthExpiry, "")!!
-        headers[Constants.headerAuthUid] = sharPreferences.getString(Constants.keyAuthUid, "")!!
-        headers[Constants.headerAuthContent] = sharPreferences.getString(Constants.keyAuthContent, "")!!
-        return headers
-    }
-
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -93,6 +94,8 @@ class LoginFragment : Fragment() {
             putString(Constants.keyAuthUid, viewModel.loginAuthData.value?.get(Constants.headerAuthUid))
             putString(Constants.keyAuthContent, viewModel.loginAuthData.value?.get(Constants.headerAuthContent))
             putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
+            putString(Constants.keyImageUri, viewModel.imageUri)
+            Log.e("LOGIN", "url "+viewModel.imageUri)
             putBoolean(Constants.keyLogedIn, remember)
         }
     }
