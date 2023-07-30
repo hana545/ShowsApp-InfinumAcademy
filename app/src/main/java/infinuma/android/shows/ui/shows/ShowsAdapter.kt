@@ -2,12 +2,15 @@ package infinuma.android.shows.ui.shows
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import infinuma.android.shows.databinding.ItemShowBinding
 import infinuma.android.shows.model.Show
 
 class ShowsAdapter (
-    private var items: List<Show>,
+    private var items: MutableList<Show>,
     private var onItemClick : (Show) -> Unit
 ) : RecyclerView.Adapter<ShowsAdapter.ShowViewHolder>() {
 
@@ -17,10 +20,16 @@ class ShowsAdapter (
             binding.cardContainer.setOnClickListener{
                 onItemClick(show)
             }
-            binding.showName.text = show.name
-            binding.showGenre.text = show.genre
+
+            binding.showName.text = show.title
             binding.showDescription.text = show.description
-            binding.showImage.setImageResource(show.imageResourceId)
+            Glide.with(binding.root)
+                .load(show.imageUrl)
+                .centerCrop()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(binding.showImage)
+            binding.showImage.setImageURI(show.imageUrl.toUri())
         }
     }
 

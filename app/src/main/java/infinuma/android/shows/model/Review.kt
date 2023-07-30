@@ -1,10 +1,26 @@
 package infinuma.android.shows.model
 
-import androidx.annotation.DrawableRes
+import kotlinx.serialization.SerialName
 
+@kotlinx.serialization.Serializable
 data class Review(
-    val author: String,
-    val review: Int,
-    val description: String,
-    @DrawableRes val imageResourceId: Int,
+    @SerialName("id") val id: String,
+    @SerialName("user") val user: User,
+    @SerialName("rating") val rating: Int,
+    @SerialName("comment") val comment: String,
+)
+@kotlinx.serialization.Serializable
+data class ListReviewsResponse(
+    @SerialName("reviews") val reviews: MutableList<Review>
+)
+@kotlinx.serialization.Serializable
+data class ListReviewResponse(
+    @SerialName("review") val review: Review
+)
+
+@kotlinx.serialization.Serializable
+data class ReviewRequest(
+    @SerialName("rating") val rating: Int,
+    @SerialName("comment") val comment: String,
+    @SerialName("show_id") val showId: String
 )

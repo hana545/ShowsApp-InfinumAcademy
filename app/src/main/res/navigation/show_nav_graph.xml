@@ -31,8 +31,8 @@
         tools:layout="@layout/fragment_show_details">
 
         <argument
-            android:name="show"
-            app:argType="infinuma.android.shows.model.Show"/>
+            android:name="showId"
+            app:argType="string"/>
 
     </fragment>
 

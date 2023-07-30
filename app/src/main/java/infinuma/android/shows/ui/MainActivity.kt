@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.ActivityMainBinding
+import infinuma.android.shows.networking.ApiModule
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         checkLogedIn()
+
+        ApiModule.initRetrofit(this)
     }
 
     private fun checkLogedIn() {

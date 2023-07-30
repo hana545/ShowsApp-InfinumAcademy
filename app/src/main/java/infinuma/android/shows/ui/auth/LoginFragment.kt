@@ -1,7 +1,6 @@
-package infinuma.android.shows.ui
+package infinuma.android.shows.ui.auth
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,20 +9,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.edit
+import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentLoginBinding
-
-
+import infinuma.android.shows.networking.ApiModule
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
 
     private val binding get() = _binding!!
+
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,19 +48,55 @@ class LoginFragment : Fragment() {
         setupEmailListener()
         setupPasswordListener()
 
-        binding.loginBtn.setOnClickListener {
-            if(binding.checkboxRememberMe.isChecked) rememberUser()
-            findNavController().navigate(R.id.toShowNavGraph)
+        if (arguments?.getBoolean("registered") == true) {
+            binding.apply {
+                loginTitle.text = "Registration successful"
+                toRegistrationBtn.visibility = View.GONE
+            }
+        }
 
+        binding.apply {
+            loginBtn.setOnClickListener {
+                binding.progressBar.visibility = View.VISIBLE
+                viewModel.onLoginButtonClicked(
+                    username = loginInputEmail.text.toString(),
+                    password = loginInputPassword.text.toString()
+                )
+            }
+
+            toRegistrationBtn.setOnClickListener {
+                findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
+            }
+        }
+
+        viewModel.loginResult.observe(viewLifecycleOwner){ result ->
+            binding.progressBar.visibility = View.GONE
+            if (result) {
+                if (binding.checkboxRememberMe.isChecked) rememberUser(true) else rememberUser(false)
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+                findNavController().navigate(R.id.toShowNavGraph, null, options)
+            } else {
+                if(!viewModel.loginErrorResult.value.isNullOrEmpty()) {
+                    Toast.makeText(context, "${viewModel.loginErrorResult.value}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
-    private fun rememberUser() {
+    private fun rememberUser(remember : Boolean) {
         val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         preferences.edit {
+            putString(Constants.keyAuthAccToken, viewModel.loginAuthData.value?.get(Constants.headerAuthAccToken))
+            putString(Constants.keyAuthClient, viewModel.loginAuthData.value?.get(Constants.headerAuthClient))
+            putString(Constants.keyAuthExpiry, viewModel.loginAuthData.value?.get(Constants.headerAuthExpiry))
+            putString(Constants.keyAuthUid, viewModel.loginAuthData.value?.get(Constants.headerAuthUid))
+            putString(Constants.keyAuthContent, viewModel.loginAuthData.value?.get(Constants.headerAuthContent))
             putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
-            putString(Constants.keyPassword, binding.loginInputPassword.text.toString())
-            putBoolean(Constants.keyLogedIn, true)
+            putString(Constants.keyImageUri, viewModel.imageUri)
+            Log.e("LOGIN", "url "+viewModel.imageUri)
+            putBoolean(Constants.keyLogedIn, remember)
         }
     }
 

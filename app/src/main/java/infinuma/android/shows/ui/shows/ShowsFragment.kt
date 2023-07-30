@@ -5,7 +5,9 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +16,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -24,6 +27,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import infinuma.android.shows.Constants
 import infinuma.android.shows.FileUtil
 import infinuma.android.shows.R
+import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
@@ -41,6 +45,8 @@ class ShowsFragment : Fragment() {
     private val dialogPictureOptionsBinding get() = _dialogPictureOptionsBinding!!
 
     private lateinit var adapter: ShowsAdapter
+
+    private lateinit var loading: Dialog
 
     private val viewModel by viewModels<ShowsViewModel>()
 
@@ -60,26 +66,21 @@ class ShowsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loading = loadingDialog()
+        loading.show()
 
-        adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!.toList()) { show ->
-            val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show)
-            findNavController().navigate(direction)
-        }
-        binding.recyclerViewShows.adapter = adapter
-
-        viewModel.listShowsLiveData.observe(viewLifecycleOwner) { shows ->
+        viewModel.getShowList().observe(viewLifecycleOwner) { shows ->
+            adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!) { show ->
+                val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
+                findNavController().navigate(direction)
+            }
+            binding.recyclerViewShows.adapter = adapter
             binding.apply {
-                binding.showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
-                binding.recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+                showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
+                recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
             }
-        }
-
-        binding.showsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                viewModel.removeShowsList()
-            } else {
-                viewModel.addShowsList()
-            }
+            adapter.notifyDataSetChanged()
+            if(shows.isNotEmpty()) loading.cancel()
         }
 
         setUserOptions()
@@ -131,28 +132,55 @@ class ShowsFragment : Fragment() {
         } catch (ex: IOException) {
             null
         }
-        // Continue only if the File was successfully created
         photoFile?.also {
             viewModel.setCurrentPhotoUri(FileProvider.getUriForFile(
                 requireContext(),
                 Constants.FileProviderAuthority,
                 it
             ))
-            takePicture.launch( viewModel.currentPhotoUriLiveData.value)
+            takePicture.launch(viewModel.currentPhotoUriLiveData.value)
         }
     }
+
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
                 viewModel.currentPhotoUriLiveData.value?.let { viewModel.setProfilePhotoUri(it) }
                 setProfileImages()
+                FileUtil.getImageFile(requireContext())?.let { viewModel.uploadPhoto(it) }
             }
         }
 
-
     val pickGalleryMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            viewModel.setProfilePhotoUri(uri)
+            val photoFile: File? = try {
+                FileUtil.createImageFile(requireContext())
+            } catch (ex: IOException) {
+                null
+            }
+            photoFile?.also {
+                viewModel.setCurrentPhotoUri(uri)
+            }
+            if (photoFile != null) {
+                copyFile(uri, photoFile.toUri())
+                viewModel.setProfilePhotoUri(photoFile.toUri())
+                FileUtil.getImageFile(requireContext())?.let { viewModel.uploadPhoto(it) }
+            }
+        }
+    }
+    @Throws(IOException::class)
+    private fun copyFile(pathFrom: Uri, pathTo: Uri) {
+        requireActivity().contentResolver.openInputStream(pathFrom).use { `in` ->
+            if (`in` == null) return
+            requireActivity().contentResolver.openOutputStream(pathTo).use { out ->
+                if (out == null) return
+                // Transfer bytes from in to out
+                val buf = ByteArray(1024)
+                var len: Int
+                while (`in`.read(buf).also { len = it } > 0) {
+                    out.write(buf, 0, len)
+                }
+            }
         }
     }
 
@@ -225,6 +253,11 @@ class ShowsFragment : Fragment() {
         }
         return dialogPictureOptions
     }
+    private fun loadingDialog() : Dialog {
+        val dialog= Dialog(requireContext(), android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+        dialog.setContentView(DialogLoadingBinding.inflate(layoutInflater).root)
+        return dialog
+    }
 
     private fun logOut(){
         viewModel.clearSharedPreferences()
@@ -233,6 +266,7 @@ class ShowsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        viewModel.clearSharedPreferences()
         _binding = null
     }
 }

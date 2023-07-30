@@ -1,5 +1,6 @@
 package infinuma.android.shows.ui.show_details
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,9 +14,9 @@ class ReviewsAdapter (
     inner class ReviewViewHolder(private val binding: ItemReviewBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(review: Review) {
-            binding.reviewAuthor.text = review.author
-            binding.reviewNum.text = review.review.toString()
-            binding.reviewDescription.text = review.description
+            binding.reviewAuthor.text = review.user.email
+            binding.reviewNum.text = review.rating.toString()
+            binding.reviewDescription.text = review.comment
         }
     }
 
