@@ -7,23 +7,27 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import androidx.room.ColumnInfo
 import infinuma.android.shows.Constants
-import infinuma.android.shows.model.RegisterRequest
-import infinuma.android.shows.model.RegisterResponse
+import infinuma.android.shows.db.ShowEntity
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
+import infinuma.android.shows.db.ShowsDatabase
 import java.io.File
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
+import kotlinx.serialization.SerialName
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.json.JSONObject
 
-class ShowsViewModel(application: Application) : AndroidViewModel(application) {
+class ShowsViewModel(application: Application,  private val database: ShowsDatabase) : AndroidViewModel(application) {
 
     private val sharPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
     private val _listShowsLiveData = MutableLiveData<MutableList<Show>>()
@@ -40,20 +44,6 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         _listShowsLiveData.value = mutableListOf()
         _profilePhotoUriLiveData.value = sharPreferences.getString(Constants.keyImageUri, "")?.toUri()
         _currentPhotoUriLiveData.value = Uri.EMPTY
-    }
-
-    fun removeShowsList() {
-        _listShowsLiveData.value?.clear()
-        _listShowsLiveData.value = _listShowsLiveData.value
-    }
-
-    fun addShowsList() {
-        getShows()
-
-    }
-    fun getShowList(): LiveData<MutableList<Show>> {
-        getShows()
-        return listShowsLiveData
     }
 
     fun clearSharedPreferences() {
@@ -89,6 +79,26 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         val response = ApiModule.retrofit.listShows()
             if (response.isSuccessful) {
                 _listShowsLiveData.value = response.body()?.shows
+                val tmpShowEntityList = response.body()?.shows?.map { it.toEntity() } ?: emptyList()
+                GlobalScope.launch {
+                    if (!showsLiveData.value.isNullOrEmpty()) {
+                        if (showsLiveData.value?.size == 0) {
+                            tmpShowEntityList.let { database.showDao().insertAllShows(it) }
+                        } else {
+                            for (showEntity in tmpShowEntityList) {
+                                // Check if the showEntity already exists in the database
+                                val existingShow = database.showDao().getShow(showEntity.id)
+
+                                if (existingShow == null) {
+                                    // Insert the showEntity into the database if it doesn't exist
+                                    database.showDao().insert(showEntity)
+                                }
+                            }
+                        }
+                    } else {
+                        database.showDao().insertAllShows(tmpShowEntityList)
+                    }
+                }
             }
         }
 
@@ -119,4 +129,22 @@ class ShowsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    val showsLiveData: LiveData<MutableList<Show>> =
+        database.showDao().getAllShows().map { listOfShowEntities ->
+            return@map listOfShowEntities.map { showEntity ->
+                Show(
+                    id = showEntity.id,
+                    title = showEntity.title,
+                    description = showEntity.description,
+                    imageUrl = showEntity.imageUrl,
+                    averageRating = showEntity.avgRating,
+                    numReviews = showEntity.numReviews
+                )
+            } as @JvmSuppressWildcards MutableList<Show>
+
+        }
+
+    fun Show.toEntity(): ShowEntity {
+        return ShowEntity(this.id, this.title, this.description, this.imageUrl, this.averageRating, this.numReviews)
+    }
 }

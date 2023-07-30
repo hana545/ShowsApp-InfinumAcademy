@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.Constants
 import infinuma.android.shows.model.Review
@@ -14,9 +15,7 @@ import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
 import kotlinx.coroutines.launch
 
-class ShowDetailsViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val sharPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
+class ShowDetailsViewModel : ViewModel() {
 
     private val _showLiveData = MutableLiveData<Show?>()
     val showLiveData: LiveData<Show?> = _showLiveData

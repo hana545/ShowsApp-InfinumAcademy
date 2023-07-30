@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +30,8 @@ import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
+import infinuma.android.shows.db.ShowsDatabase
+import infinuma.android.shows.model.Show
 import java.io.File
 import java.io.IOException
 
@@ -48,7 +49,9 @@ class ShowsFragment : Fragment() {
 
     private lateinit var loading: Dialog
 
-    private val viewModel by viewModels<ShowsViewModel>()
+    private val viewModel by viewModels<ShowsViewModel>{
+        ShowsViewModelFactory(requireActivity().application,ShowsDatabase.getDatabase(requireContext()))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,22 +72,32 @@ class ShowsFragment : Fragment() {
         loading = loadingDialog()
         loading.show()
 
-        viewModel.getShowList().observe(viewLifecycleOwner) { shows ->
-            adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!) { show ->
-                val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
-                findNavController().navigate(direction)
-            }
-            binding.recyclerViewShows.adapter = adapter
-            binding.apply {
-                showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
-                recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
-            }
-            adapter.notifyDataSetChanged()
-            if(shows.isNotEmpty()) loading.cancel()
+        viewModel.getShows()
+        initShowsRecycler()
+
+        viewModel.showsLiveData.observe(viewLifecycleOwner) { shows ->
+            updateItems(shows)
         }
 
         setUserOptions()
     }
+    private fun initShowsRecycler() {
+        adapter = ShowsAdapter(mutableListOf()) { item ->
+            Toast.makeText(requireContext(), item.title, Toast.LENGTH_SHORT).show()
+        }
+        binding.recyclerViewShows.adapter = adapter
+    }
+
+    private fun updateItems(shows: MutableList<Show>) {
+        adapter.setItems(shows)
+        binding.apply {
+            showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
+            recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+        }
+        if(shows.isNotEmpty()) loading.cancel()
+    }
+
+
     private val requestPermissionLauncher = registerForActivityResult<String, Boolean>(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -266,7 +279,7 @@ class ShowsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.clearSharedPreferences()
+        //viewModel.clearSharedPreferences()
         _binding = null
     }
 }

@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'androidx.navigation.safeargs.kotlin'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -29,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
     }
     buildFeatures {
         viewBinding true
@@ -52,10 +53,16 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.6.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.6.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.6.0'
+
+    //Glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+
+    //LiveData
+    def lifecycle_version = "2.6.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2'
@@ -70,5 +77,11 @@ dependencies {
     // Chucker
     debugImplementation "com.github.chuckerteam.chucker:library:4.0.0"
     releaseImplementation "com.github.chuckerteam.chucker:library-no-op:4.0.0"
+
+    //Room
+    def room_version = "2.5.2"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
 
 }
