@@ -32,8 +32,10 @@ import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
 import infinuma.android.shows.db.ShowsDatabase
 import infinuma.android.shows.model.Show
+import infinuma.android.shows.networking.NetworkUtils
 import java.io.File
 import java.io.IOException
+import kotlin.properties.Delegates
 
 class ShowsFragment : Fragment() {
 
@@ -48,6 +50,8 @@ class ShowsFragment : Fragment() {
     private lateinit var adapter: ShowsAdapter
 
     private lateinit var loading: Dialog
+
+    private var isConnected by Delegates.notNull<Boolean>()
 
     private val viewModel by viewModels<ShowsViewModel>{
         ShowsViewModelFactory(requireActivity().application,ShowsDatabase.getDatabase(requireContext()))
@@ -72,18 +76,27 @@ class ShowsFragment : Fragment() {
         loading = loadingDialog()
         loading.show()
 
-        viewModel.getShows()
-        initShowsRecycler()
+        isConnected = NetworkUtils.isInternetAvailable(requireActivity().applicationContext)
 
-        viewModel.showsLiveData.observe(viewLifecycleOwner) { shows ->
-            updateItems(shows)
+        if (isConnected) {
+            viewModel.getShows()
+            viewModel.listShowsAPILiveData.observe(viewLifecycleOwner) { shows ->
+                updateItems(shows)
+            }
+        } else {
+            viewModel.showsDBLiveData.observe(viewLifecycleOwner) { shows ->
+                updateItems(shows)
+            }
         }
+
+        initShowsRecycler()
 
         setUserOptions()
     }
     private fun initShowsRecycler() {
-        adapter = ShowsAdapter(mutableListOf()) { item ->
-            Toast.makeText(requireContext(), item.title, Toast.LENGTH_SHORT).show()
+        adapter = ShowsAdapter(mutableListOf()) { show ->
+            val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
+            findNavController().navigate(direction)
         }
         binding.recyclerViewShows.adapter = adapter
     }

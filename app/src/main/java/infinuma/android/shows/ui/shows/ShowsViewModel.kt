@@ -7,12 +7,10 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import androidx.room.ColumnInfo
 import infinuma.android.shows.Constants
 import infinuma.android.shows.db.ShowEntity
 import infinuma.android.shows.model.Show
@@ -21,7 +19,6 @@ import infinuma.android.shows.db.ShowsDatabase
 import java.io.File
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.SerialName
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -31,7 +28,7 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
 
     private val sharPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
     private val _listShowsLiveData = MutableLiveData<MutableList<Show>>()
-    val listShowsLiveData: LiveData<MutableList<Show>> get() = _listShowsLiveData
+    val listShowsAPILiveData: LiveData<MutableList<Show>> get() = _listShowsLiveData
 
     private val _currentPhotoUriLiveData = MutableLiveData<Uri>()
     val currentPhotoUriLiveData: LiveData<Uri> get() = _currentPhotoUriLiveData
@@ -79,29 +76,16 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
         val response = ApiModule.retrofit.listShows()
             if (response.isSuccessful) {
                 _listShowsLiveData.value = response.body()?.shows
-                val tmpShowEntityList = response.body()?.shows?.map { it.toEntity() } ?: emptyList()
-                GlobalScope.launch {
-                    if (!showsLiveData.value.isNullOrEmpty()) {
-                        if (showsLiveData.value?.size == 0) {
-                            tmpShowEntityList.let { database.showDao().insertAllShows(it) }
-                        } else {
-                            for (showEntity in tmpShowEntityList) {
-                                // Check if the showEntity already exists in the database
-                                val existingShow = database.showDao().getShow(showEntity.id)
-
-                                if (existingShow == null) {
-                                    // Insert the showEntity into the database if it doesn't exist
-                                    database.showDao().insert(showEntity)
-                                }
-                            }
-                        }
-                    } else {
-                        database.showDao().insertAllShows(tmpShowEntityList)
-                    }
-                }
+                insertShowsInDB(response.body()?.shows!!)
             }
         }
 
+    private fun insertShowsInDB(shows: MutableList<Show>) {
+        val tmpShowEntityList = shows.map { it.toEntity() } ?: emptyList()
+        GlobalScope.launch {
+            database.showDao().insertAllShows(tmpShowEntityList)
+        }
+    }
     fun uploadPhoto(file: File) =
         viewModelScope.launch {
             try {
@@ -129,7 +113,7 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
         }
     }
 
-    val showsLiveData: LiveData<MutableList<Show>> =
+    val showsDBLiveData: LiveData<MutableList<Show>> =
         database.showDao().getAllShows().map { listOfShowEntities ->
             return@map listOfShowEntities.map { showEntity ->
                 Show(

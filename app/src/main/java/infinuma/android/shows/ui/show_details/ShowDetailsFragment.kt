@@ -1,7 +1,9 @@
 package infinuma.android.shows.ui.show_details
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavArgs
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
@@ -19,7 +22,15 @@ import infinuma.android.shows.R
 import infinuma.android.shows.databinding.DialogAddReviewBinding
 import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
+import infinuma.android.shows.db.ShowsDatabase
+import infinuma.android.shows.model.Review
+import infinuma.android.shows.model.Show
+import infinuma.android.shows.networking.NetworkUtils
 import infinuma.android.shows.ui.MainActivity
+import infinuma.android.shows.ui.shows.ShowsAdapter
+import infinuma.android.shows.ui.shows.ShowsFragmentDirections
+import kotlin.properties.Delegates
+import okhttp3.internal.notify
 
 class ShowDetailsFragment : Fragment() {
 
@@ -31,7 +42,11 @@ class ShowDetailsFragment : Fragment() {
 
     private lateinit var loading: Dialog
 
-    private val viewModel by viewModels<ShowDetailsViewModel>()
+    private var isConnected by Delegates.notNull<Boolean>()
+
+    private val viewModel by viewModels<ShowDetailsViewModel>{
+        ShowDetailsViewModelFactory(ShowsDatabase.getDatabase(requireContext()))
+    }
 
     private val args : ShowDetailsFragmentArgs by navArgs()
 
@@ -53,12 +68,25 @@ class ShowDetailsFragment : Fragment() {
         loading = loadingDialog()
         loading.show()
 
-        viewModel.getShow(args.showId)
-        viewModel.getShowReviews(args.showId)
+        isConnected = NetworkUtils.isInternetAvailable(requireActivity().applicationContext)
+
+        viewModel.getShow(args.showId, isConnected)
+
+        if (isConnected) {
+            viewModel.getShowReviews(args.showId)
+            viewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
+                updateItems(reviews)
+            }
+        } else {
+            viewModel.getReviewsByDB(args.showId).observe(viewLifecycleOwner) { reviews ->
+                updateItems(reviews)
+                if (reviews.isEmpty()) hideReviews()
+            }
+        }
 
         bindShowData()
 
-        setupReviewsAdapter()
+        initReviewsAdapter()
         setupAddReviewDialog()
 
         viewModel.showLiveData.observe(viewLifecycleOwner) { currentShow ->
@@ -101,30 +129,33 @@ class ShowDetailsFragment : Fragment() {
 
         dialogBinding.btnSubmitReview.setOnClickListener {
             viewModel.addReview(dialogBinding.reviewText.text.toString(),ratingValue, viewModel.showLiveData.value!!.id)
-            adapter.notifyItemInserted(viewModel.reviewsLiveData.value!!.size)
-            dialog.cancel()
         }
         viewModel.postReviewResult.observe(viewLifecycleOwner) { result ->
-            if (result) Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
-            if (!result) Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun setupReviewsAdapter() {
-        viewModel.getReviewList().observe(viewLifecycleOwner) { reviews ->
-            adapter = ReviewsAdapter(reviews)
-            binding.apply {
-                recyclerViewReviews.adapter = adapter
-                recyclerViewReviews.addItemDecoration(
-                    DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-                )
+            if (result) {
+                Toast.makeText(requireContext(), "Successfully added a review!", Toast.LENGTH_SHORT).show()
+                adapter.notifyItemInserted(viewModel.reviewsLiveData.value!!.size)
+                dialog.cancel()
+            } else if (!result){
+                Toast.makeText(requireContext(), "You need internet connection to review shows!", Toast.LENGTH_LONG).show()
             }
         }
-        viewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
-            adapter.notifyDataSetChanged()
+    }
 
+    private fun initReviewsAdapter() {
+        adapter = ReviewsAdapter(mutableListOf())
+        binding.apply {
+            recyclerViewReviews.adapter = adapter
+            recyclerViewReviews.addItemDecoration(
+                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+            )
         }
     }
+
+    private fun updateItems(reviews: MutableList<Review>) {
+        adapter.setItems(reviews)
+        if(reviews.isNotEmpty()) loading.cancel()
+    }
+
 
     private fun showReviews() {
         binding.apply {

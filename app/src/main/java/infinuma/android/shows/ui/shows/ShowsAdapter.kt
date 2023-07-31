@@ -28,8 +28,6 @@ class ShowsAdapter (
                 .load(show.imageUrl)
                 .centerCrop()
                 .placeholder(R.drawable.ic_shows_empty_state)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(binding.showImage)
         }
     }

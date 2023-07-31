@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import infinuma.android.shows.databinding.ItemReviewBinding
 import infinuma.android.shows.model.Review
+import infinuma.android.shows.model.Show
 
 class ReviewsAdapter (
     private var items: MutableList<Review>
@@ -29,6 +30,11 @@ class ReviewsAdapter (
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
         holder.bind(items[position])
+    }
+
+    fun setItems(reviews: MutableList<Review>) {
+        items = reviews
+        notifyDataSetChanged()
     }
 
 }
