@@ -4,6 +4,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import infinuma.android.shows.R
 import infinuma.android.shows.databinding.ItemReviewBinding
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.Show
@@ -18,6 +20,11 @@ class ReviewsAdapter (
             binding.reviewAuthor.text = review.user.email
             binding.reviewNum.text = review.rating.toString()
             binding.reviewDescription.text = review.comment
+            Glide.with(binding.root)
+                .load(review.user.imageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_profile_placeholder)
+                .into(binding.reviewImage)
         }
     }
 

@@ -8,23 +8,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import infinuma.android.shows.Constants
 import infinuma.android.shows.db.ReviewEntity
 import infinuma.android.shows.db.ShowEntity
 import infinuma.android.shows.db.ShowsDatabase
-import infinuma.android.shows.model.RegisterResponse
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.ReviewRequest
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.model.User
 import infinuma.android.shows.networking.ApiModule
-import infinuma.android.shows.networking.NetworkUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.internal.notifyAll
 
 class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
 
@@ -46,7 +41,7 @@ class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
                     getShowByDB(id)
                 }
             } catch (ups: Exception) {
-                Log.e("SHOWDETAILLIST", "ups "+ups.toString())
+                Log.e("SHOWDETAILLIST", "getShow ups "+ups.toString())
             }
         }
 
@@ -69,7 +64,7 @@ class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
             try {
                 getReviewsByAPI(id)
             } catch (ups: Exception) {
-                Log.e("SHOWDETAILLIST", "ups "+ups.toString())
+                Log.e("SHOWDETAILLIST", "getReview ups "+ups.toString())
             }
         }
 
@@ -78,14 +73,12 @@ class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
         if (response.isSuccessful) {
             _reviewsLiveData.value = response.body()?.reviews
             insertReviewsInDB(response.body()?.reviews!!, id)
-        } else {
-
         }
     }
 
     private fun insertReviewsInDB(reviews: MutableList<Review>, showId: String) {
         val tmpReviewEntityList = reviews.map { it.toEntity(showId) } ?: emptyList()
-        GlobalScope.launch {
+        viewModelScope.launch {
                 database.reviewDao().insertAllReviews(tmpReviewEntityList)
         }
 
@@ -95,7 +88,7 @@ class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
             return@map listOfReviewEntities.map { reviewEntity ->
                 Review(
                     id = reviewEntity.id,
-                    user = User(reviewEntity.userId, reviewEntity.userName, ""),
+                    user = User(reviewEntity.userId, reviewEntity.userName, reviewEntity.userImageUrl),
                     rating = reviewEntity.rating,
                     comment = reviewEntity.comment
                 )
@@ -127,18 +120,6 @@ class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {
 
     private suspend fun updateShow(showId: String) {
         database.showDao().updateShow(getShowByDB(showId).toEntity())
-    }
-
-    private fun ShowEntity.toShow(): Show {
-        return Show(this.id, this.title, this.description, this.imageUrl, this.avgRating, this.numReviews)
-    }
-
-    private fun Show.toEntity(): ShowEntity {
-        return ShowEntity(this.id, this.title, this.description, this.imageUrl, this.averageRating, this.numReviews)
-    }
-
-    private fun Review.toEntity(showId: String): ReviewEntity {
-        return ReviewEntity(this.id, this.user.id, this.user.email, this.rating, this.comment, showId)
     }
 
 }

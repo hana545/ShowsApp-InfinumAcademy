@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import infinuma.android.shows.model.Review
+import infinuma.android.shows.model.Show
 import infinuma.android.shows.model.User
 import kotlinx.serialization.SerialName
 
@@ -14,5 +16,8 @@ data class ReviewEntity(
     @ColumnInfo(name = "user_name") val userName: String,
     @ColumnInfo(name = "rating") val rating: Int,
     @ColumnInfo(name = "comment") val comment: String,
-    @ColumnInfo(name = "show_id") val showId: String
+    @ColumnInfo(name = "show_id") val showId: String,
+    @ColumnInfo(name = "image_url") val userImageUrl: String?,
 )
+
+
