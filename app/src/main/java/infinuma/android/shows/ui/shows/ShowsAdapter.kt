@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import infinuma.android.shows.R
 import infinuma.android.shows.databinding.ItemShowBinding
 import infinuma.android.shows.model.Show
 
@@ -26,10 +27,8 @@ class ShowsAdapter (
             Glide.with(binding.root)
                 .load(show.imageUrl)
                 .centerCrop()
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .placeholder(R.drawable.ic_shows_empty_state)
                 .into(binding.showImage)
-            binding.showImage.setImageURI(show.imageUrl.toUri())
         }
     }
 
@@ -42,6 +41,10 @@ class ShowsAdapter (
 
     override fun onBindViewHolder(holder: ShowViewHolder, position: Int) {
         holder.bind(items[position])
+    }
+    fun setItems(shows: MutableList<Show>) {
+        items = shows
+        notifyDataSetChanged()
     }
 
 }

@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +30,12 @@ import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.DialogProfilePictureOptionsBinding
 import infinuma.android.shows.databinding.DialogUserOptionsBinding
 import infinuma.android.shows.databinding.FragmentShowsBinding
+import infinuma.android.shows.db.ShowsDatabase
+import infinuma.android.shows.model.Show
+import infinuma.android.shows.networking.NetworkUtils
 import java.io.File
 import java.io.IOException
+import kotlin.properties.Delegates
 
 class ShowsFragment : Fragment() {
 
@@ -48,7 +51,11 @@ class ShowsFragment : Fragment() {
 
     private lateinit var loading: Dialog
 
-    private val viewModel by viewModels<ShowsViewModel>()
+    private var isConnected by Delegates.notNull<Boolean>()
+
+    private val viewModel by viewModels<ShowsViewModel>{
+        ShowsViewModelFactory(requireActivity().application,ShowsDatabase.getDatabase(requireContext()))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,22 +76,41 @@ class ShowsFragment : Fragment() {
         loading = loadingDialog()
         loading.show()
 
-        viewModel.getShowList().observe(viewLifecycleOwner) { shows ->
-            adapter = ShowsAdapter(viewModel.listShowsLiveData.value!!) { show ->
-                val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
-                findNavController().navigate(direction)
+        isConnected = NetworkUtils.isInternetAvailable(requireActivity().applicationContext)
+
+        if (isConnected) {
+            viewModel.getShows()
+            viewModel.listShowsAPILiveData.observe(viewLifecycleOwner) { shows ->
+                updateItems(shows)
             }
-            binding.recyclerViewShows.adapter = adapter
-            binding.apply {
-                showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
-                recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+        } else {
+            viewModel.showsDBLiveData.observe(viewLifecycleOwner) { shows ->
+                updateItems(shows)
             }
-            adapter.notifyDataSetChanged()
-            if(shows.isNotEmpty()) loading.cancel()
         }
+
+        initShowsRecycler()
 
         setUserOptions()
     }
+    private fun initShowsRecycler() {
+        adapter = ShowsAdapter(mutableListOf()) { show ->
+            val direction = ShowsFragmentDirections.actionShowsFragmentToShowDetailsFragment(show.id)
+            findNavController().navigate(direction)
+        }
+        binding.recyclerViewShows.adapter = adapter
+    }
+
+    private fun updateItems(shows: MutableList<Show>) {
+        adapter.setItems(shows)
+        binding.apply {
+            showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
+            recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+        }
+        if(shows.isNotEmpty()) loading.cancel()
+    }
+
+
     private val requestPermissionLauncher = registerForActivityResult<String, Boolean>(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -266,7 +292,7 @@ class ShowsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.clearSharedPreferences()
+        //viewModel.clearSharedPreferences()
         _binding = null
     }
 }
