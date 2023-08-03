@@ -1,24 +1,18 @@
 package infinuma.android.shows.ui.show_details
 
-import android.app.Application
-import android.content.Context
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import infinuma.android.shows.db.ReviewEntity
-import infinuma.android.shows.db.ShowEntity
 import infinuma.android.shows.db.ShowsDatabase
 import infinuma.android.shows.model.Review
 import infinuma.android.shows.model.ReviewRequest
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.model.User
 import infinuma.android.shows.networking.ApiModule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ShowDetailsViewModel(private val database: ShowsDatabase) : ViewModel() {

@@ -40,7 +40,7 @@
     </style>
 
     <style name="Material.WhiteRoundedButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/purple_800</item>
         <item name="backgroundTint">@color/white_button</item>
         <item name="android:background">@drawable/rounded_button</item>
         <item name="textAllCaps">false</item>
@@ -52,6 +52,8 @@
         <item name="boxStrokeColor">@color/white_outlined_button</item>
         <item name="hintTextColor">@color/white</item>
         <item name="boxStrokeWidth">2dp</item>
+        <item name="android:layout_marginHorizontal">20dp</item>
+        <item name="android:layout_marginVertical">8dp</item>
     </style>
 
     <style name="Widget.MaterialComponents.TextInputLayout.PurpleOutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">

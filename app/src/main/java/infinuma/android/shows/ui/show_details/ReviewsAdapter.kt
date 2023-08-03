@@ -1,6 +1,5 @@
 package infinuma.android.shows.ui.show_details
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,7 +7,6 @@ import com.bumptech.glide.Glide
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.ItemReviewBinding
 import infinuma.android.shows.model.Review
-import infinuma.android.shows.model.Show
 
 class ReviewsAdapter (
     private var items: MutableList<Review>

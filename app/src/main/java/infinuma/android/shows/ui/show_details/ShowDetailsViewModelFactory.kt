@@ -1,6 +1,5 @@
 package infinuma.android.shows.ui.show_details
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import infinuma.android.shows.db.ShowsDatabase

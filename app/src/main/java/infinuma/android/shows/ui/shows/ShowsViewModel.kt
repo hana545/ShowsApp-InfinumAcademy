@@ -12,13 +12,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.Constants
-import infinuma.android.shows.db.ShowEntity
+import infinuma.android.shows.db.ShowsDatabase
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
-import infinuma.android.shows.db.ShowsDatabase
-import infinuma.android.shows.networking.NetworkUtils
 import java.io.File
-import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

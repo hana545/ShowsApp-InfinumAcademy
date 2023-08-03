@@ -28,11 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkLoggedIn() {
         if(isLoggedIn()){
-            val options = NavOptions.Builder()
-                .setPopUpTo(R.id.loginFragment, true)
-                .build()
-
-            Navigation.findNavController(this, R.id.fragmentContainer).navigate(R.id.toShowNavGraph, null, options)
+            Navigation.findNavController(this, R.id.fragmentContainer).navigate(R.id.toShowNavGraph)
         }
     }
 
