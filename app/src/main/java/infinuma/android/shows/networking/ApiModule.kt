@@ -23,35 +23,12 @@ object ApiModule {
     private val json = Json { ignoreUnknownKeys = true }
 
     fun initRetrofit(context: Context) {
-        val headerInterceptor = object : Interceptor {
-            override fun intercept(chain: Interceptor.Chain): Response {
-                val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                    CVariable.SHARED_PREFERENCES, Context.MODE_PRIVATE)
-                // Retrieve the header values from Shared Preferences
 
-                val userAccessToken = sharedPreferences.getString(CVariable.keyAuthAccToken, "")!!
-                val userAccessClient = sharedPreferences.getString(CVariable.keyAuthClient, "")
-                val userAccessExpiry = sharedPreferences.getString(CVariable.keyAuthExpiry, "")
-                val userAccessUid = sharedPreferences.getString(CVariable.keyAuthUid,"")
-                val userAccessContent = sharedPreferences.getString(CVariable.keyAuthContent, "")
-
-                val request: Request = chain.request().newBuilder()
-                    .header("access-token", userAccessToken!!)
-                    .header("client", userAccessClient!!)
-                    .header("toke-type", "Bearer")
-                    .header("expiry", userAccessExpiry!!)
-                    .header("uid", userAccessUid!!)
-                    .header("Content-Type", userAccessContent!!)
-                    .build()
-
-                return chain.proceed(request)
-            }
-        }
         val okhttp = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
-            .addInterceptor(headerInterceptor)
+            .addInterceptor(HeaderInterceptor(context))
             .addInterceptor(ChuckerInterceptor.Builder(context = context).build())
             .build()
 

@@ -21,13 +21,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        checkLogedIn()
+        checkLoggedIn()
 
         ApiModule.initRetrofit(this)
     }
 
-    private fun checkLogedIn() {
-        if(isLogedIn()){
+    private fun checkLoggedIn() {
+        if(isLoggedIn()){
             val options = NavOptions.Builder()
                 .setPopUpTo(R.id.loginFragment, true)
                 .build()
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isLogedIn() : Boolean{
+    private fun isLoggedIn() : Boolean{
         val preferences = this.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         return preferences.getBoolean(Constants.keyLogedIn, false)
     }
