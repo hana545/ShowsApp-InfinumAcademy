@@ -116,11 +116,9 @@ class LoginFragment : Fragment() {
     private fun rememberUser(remember : Boolean) {
         val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         preferences.edit {
-            putString(Constants.keyAuthAccToken, viewModel.loginAuthData.value?.get(Constants.headerAuthAccToken))
-            putString(Constants.keyAuthClient, viewModel.loginAuthData.value?.get(Constants.headerAuthClient))
-            putString(Constants.keyAuthExpiry, viewModel.loginAuthData.value?.get(Constants.headerAuthExpiry))
-            putString(Constants.keyAuthUid, viewModel.loginAuthData.value?.get(Constants.headerAuthUid))
-            putString(Constants.keyAuthContent, viewModel.loginAuthData.value?.get(Constants.headerAuthContent))
+            putString(Constants.keyAuthAccToken, viewModel.loginAuthData[Constants.headerAuthAccToken])
+            putString(Constants.keyAuthClient, viewModel.loginAuthData[Constants.headerAuthClient])
+            putString(Constants.keyAuthUid, viewModel.loginAuthData[Constants.headerAuthUid])
             putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
             putString(Constants.keyImageUri, viewModel.imageUri)
             Log.e("LOGIN", "url "+viewModel.imageUri)

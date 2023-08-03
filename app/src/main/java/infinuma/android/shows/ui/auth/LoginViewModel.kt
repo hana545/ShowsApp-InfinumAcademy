@@ -20,8 +20,8 @@ class LoginViewModel  : ViewModel() {
     private val _loginErrorResult: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val loginErrorResult: LiveData<String> = _loginErrorResult
 
-    private val _loginAuthData: MutableLiveData<HashMap<String, String>> by lazy { MutableLiveData<HashMap<String, String>>() }
-    val loginAuthData: LiveData<HashMap<String, String>> = _loginAuthData
+    private val _loginAuthData: HashMap<String, String> by lazy { HashMap<String, String>() }
+    val loginAuthData: HashMap<String, String> = _loginAuthData
 
     var imageUri = ""
 
@@ -43,7 +43,7 @@ class LoginViewModel  : ViewModel() {
         )
         if(response.isSuccessful) {
             imageUri = response.body()?.user!!.imageUrl.toString()
-            _loginAuthData.value =createHeader(response.headers())
+            createHeader(response.headers())
             _loginResult.value = true
         } else {
             //throw IllegalStateException()
@@ -55,14 +55,10 @@ class LoginViewModel  : ViewModel() {
             _loginResult.value = false
         }
     }
-    private fun createHeader(header : Headers): HashMap<String, String> {
-        val headers = HashMap<String, String>()
-        headers[Constants.headerAuthAccToken] = header[Constants.headerAuthAccToken].toString()
-        headers[Constants.headerAuthClient] = header[Constants.headerAuthClient].toString()
-        headers[Constants.headerAuthExpiry] = header[Constants.headerAuthExpiry].toString()
-        headers[Constants.headerAuthUid] = header[Constants.headerAuthUid].toString()
-        headers[Constants.headerAuthContent] = header[Constants.headerAuthContent].toString()
-        return headers
+    private fun createHeader(header : Headers) {
+        _loginAuthData[Constants.headerAuthAccToken] = header[Constants.headerAuthAccToken].toString()
+        _loginAuthData[Constants.headerAuthClient] = header[Constants.headerAuthClient].toString()
+        _loginAuthData[Constants.headerAuthUid] = header[Constants.headerAuthUid].toString()
     }
 
 }
