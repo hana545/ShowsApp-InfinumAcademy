@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.BounceInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.fragment.app.viewModels
@@ -48,6 +51,8 @@ class LoginFragment : Fragment() {
         setupEmailListener()
         setupPasswordListener()
 
+        setupAnimations()
+
         if (arguments?.getBoolean("registered") == true) {
             binding.apply {
                 loginTitle.text = "Registration successful"
@@ -82,6 +87,29 @@ class LoginFragment : Fragment() {
                     Toast.makeText(context, "${viewModel.loginErrorResult.value}", Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    private fun setupAnimations() {
+        binding.loginImgLogo.apply{
+            alpha = 0f
+            translationY =  -(resources.displayMetrics.heightPixels-y)
+            animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(1500)
+                .setInterpolator(BounceInterpolator())
+                .start()
+        }
+        binding.loginAppName.apply{
+            scaleX = 0.5f
+            scaleY = 0.5f
+            animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(2000)
+                .setInterpolator(OvershootInterpolator())
+                .start()
         }
     }
 
