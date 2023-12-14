@@ -1,6 +1,5 @@
 package infinuma.android.shows.networking
 
-import android.net.Uri
 import infinuma.android.shows.model.ListReviewResponse
 import infinuma.android.shows.model.ListReviewsResponse
 import infinuma.android.shows.model.ListShowResponse
@@ -10,14 +9,10 @@ import infinuma.android.shows.model.RegisterResponse
 import infinuma.android.shows.model.ReviewRequest
 import infinuma.android.shows.model.SignInRequest
 import infinuma.android.shows.model.SignInResponse
-import infinuma.android.shows.model.User
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
-import retrofit2.http.HeaderMap
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT

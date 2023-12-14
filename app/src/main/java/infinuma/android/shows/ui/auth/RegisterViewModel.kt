@@ -1,14 +1,12 @@
 package infinuma.android.shows.ui.auth
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.model.RegisterRequest
 import infinuma.android.shows.networking.ApiModule
-import java.security.AccessController.getContext
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 

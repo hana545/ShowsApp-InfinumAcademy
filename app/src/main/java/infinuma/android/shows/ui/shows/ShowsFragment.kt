@@ -16,10 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -55,12 +55,6 @@ class ShowsFragment : Fragment() {
 
     private val viewModel by viewModels<ShowsViewModel>{
         ShowsViewModelFactory(requireActivity().application,ShowsDatabase.getDatabase(requireContext()))
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val inflater = TransitionInflater.from(requireContext())
-        exitTransition = inflater.inflateTransition(R.transition.slide_right)
     }
 
     override fun onCreateView(
@@ -104,8 +98,8 @@ class ShowsFragment : Fragment() {
     private fun updateItems(shows: MutableList<Show>) {
         adapter.setItems(shows)
         binding.apply {
-            showsEmpty.visibility = if (shows.isEmpty()) View.VISIBLE else View.GONE
-            recyclerViewShows.visibility = if (shows.isEmpty()) View.GONE else View.VISIBLE
+            showsEmpty.isVisible = shows.isEmpty()
+            recyclerViewShows.isVisible = shows.isNotEmpty()
         }
         if(shows.isNotEmpty()) loading.cancel()
     }
@@ -216,12 +210,14 @@ class ShowsFragment : Fragment() {
                 Glide.with(this)
                     .load(uri)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_profile_placeholder)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(binding.userOptions)
                 Glide.with(this)
                     .load(uri)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_profile_placeholder)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(dialogBinding.userProfilePhoto)

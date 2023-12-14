@@ -12,12 +12,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import infinuma.android.shows.Constants
-import infinuma.android.shows.db.ShowEntity
+import infinuma.android.shows.db.ShowsDatabase
 import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.ApiModule
-import infinuma.android.shows.db.ShowsDatabase
 import java.io.File
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -35,7 +33,6 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
 
     private val _profilePhotoUriLiveData = MutableLiveData<Uri>()
     val profilePhotoUriLiveData: LiveData<Uri> get() = _profilePhotoUriLiveData
-
 
     init {
         _listShowsLiveData.value = mutableListOf()
@@ -82,7 +79,7 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
 
     private fun insertShowsInDB(shows: MutableList<Show>) {
         val tmpShowEntityList = shows.map { it.toEntity() } ?: emptyList()
-        GlobalScope.launch {
+        viewModelScope.launch {
             database.showDao().insertAllShows(tmpShowEntityList)
         }
     }
@@ -128,7 +125,4 @@ class ShowsViewModel(application: Application,  private val database: ShowsDatab
 
         }
 
-    fun Show.toEntity(): ShowEntity {
-        return ShowEntity(this.id, this.title, this.description, this.imageUrl, this.averageRating, this.numReviews)
-    }
 }

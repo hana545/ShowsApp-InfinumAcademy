@@ -29,11 +29,15 @@
             app:popUpToInclusive="true"
             app:launchSingleTop="true"
             app:popUpTo="@id/loginFragment"
-            app:destination="@+id/showNavGraph"/>
+            app:destination="@+id/showNavGraph"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out" />
 
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
-            app:destination="@id/registerFragment"/>
+            app:destination="@id/registerFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out" />
     </fragment>
 
     <include app:graph="@navigation/show_nav_graph"/>

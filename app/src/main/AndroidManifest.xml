@@ -30,6 +30,9 @@
         </provider>
         <activity
             android:name=".ui.MainActivity"
+
+
+            android:theme="@style/Theme.SplashScreenTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

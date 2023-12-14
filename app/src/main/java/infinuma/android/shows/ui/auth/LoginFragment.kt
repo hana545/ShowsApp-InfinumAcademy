@@ -5,20 +5,20 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.BounceInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.transition.TransitionInflater
 import infinuma.android.shows.Constants
 import infinuma.android.shows.R
 import infinuma.android.shows.databinding.FragmentLoginBinding
-import infinuma.android.shows.networking.ApiModule
 
 class LoginFragment : Fragment() {
 
@@ -27,12 +27,6 @@ class LoginFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: LoginViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val inflater = TransitionInflater.from(requireContext())
-        exitTransition = inflater.inflateTransition(R.transition.fade)
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +41,8 @@ class LoginFragment : Fragment() {
 
         setupEmailListener()
         setupPasswordListener()
+
+        setupAnimations()
 
         if (arguments?.getBoolean("registered") == true) {
             binding.apply {
@@ -85,14 +81,35 @@ class LoginFragment : Fragment() {
         }
     }
 
+    private fun setupAnimations() {
+        binding.loginImgLogo.apply{
+            alpha = 0f
+            translationY =  -(resources.displayMetrics.heightPixels-y)
+            animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(1500)
+                .setInterpolator(BounceInterpolator())
+                .start()
+        }
+        binding.loginAppName.apply{
+            scaleX = 0.5f
+            scaleY = 0.5f
+            animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(2000)
+                .setInterpolator(OvershootInterpolator())
+                .start()
+        }
+    }
+
     private fun rememberUser(remember : Boolean) {
         val preferences = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
         preferences.edit {
-            putString(Constants.keyAuthAccToken, viewModel.loginAuthData.value?.get(Constants.headerAuthAccToken))
-            putString(Constants.keyAuthClient, viewModel.loginAuthData.value?.get(Constants.headerAuthClient))
-            putString(Constants.keyAuthExpiry, viewModel.loginAuthData.value?.get(Constants.headerAuthExpiry))
-            putString(Constants.keyAuthUid, viewModel.loginAuthData.value?.get(Constants.headerAuthUid))
-            putString(Constants.keyAuthContent, viewModel.loginAuthData.value?.get(Constants.headerAuthContent))
+            putString(Constants.keyAuthAccToken, viewModel.loginAuthData[Constants.headerAuthAccToken])
+            putString(Constants.keyAuthClient, viewModel.loginAuthData[Constants.headerAuthClient])
+            putString(Constants.keyAuthUid, viewModel.loginAuthData[Constants.headerAuthUid])
             putString(Constants.keyEmail, binding.loginInputEmail.text.toString())
             putString(Constants.keyImageUri, viewModel.imageUri)
             Log.e("LOGIN", "url "+viewModel.imageUri)

@@ -1,18 +1,14 @@
 package infinuma.android.shows.ui.show_details
 
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavArgs
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
@@ -24,13 +20,9 @@ import infinuma.android.shows.databinding.DialogLoadingBinding
 import infinuma.android.shows.databinding.FragmentShowDetailsBinding
 import infinuma.android.shows.db.ShowsDatabase
 import infinuma.android.shows.model.Review
-import infinuma.android.shows.model.Show
 import infinuma.android.shows.networking.NetworkUtils
 import infinuma.android.shows.ui.MainActivity
-import infinuma.android.shows.ui.shows.ShowsAdapter
-import infinuma.android.shows.ui.shows.ShowsFragmentDirections
 import kotlin.properties.Delegates
-import okhttp3.internal.notify
 
 class ShowDetailsFragment : Fragment() {
 

@@ -1,5 +1,6 @@
 package infinuma.android.shows.model
 
+import infinuma.android.shows.db.ShowEntity
 import kotlinx.serialization.SerialName
 
 @kotlinx.serialization.Serializable
@@ -10,7 +11,11 @@ data class Show(
     @SerialName("image_url") val imageUrl: String,
     @SerialName("average_rating") var averageRating: Float?,
     @SerialName("no_of_reviews") var numReviews: Int?
-)
+) {
+    fun toEntity(): ShowEntity {
+        return ShowEntity(this.id, this.title, this.description, this.imageUrl, this.averageRating, this.numReviews)
+    }
+}
 
 @kotlinx.serialization.Serializable
 data class ListShowsResponse(
